@@ -1,19 +1,17 @@
-# Central de Geradores — demonstração pública v0.8
+# Central de Geradores — demonstração v0.9
 
-Acesse a versão gratuita em: https://orcafacil-dev.github.io/central-geradores-teste/
+Site gratuito e experimental: https://orcafacil-dev.github.io/central-geradores-teste/
 
-15 geradores de documentos no navegador, 3 modelos de organização, cores e fontes, exportação PDF pelo navegador, Word DOCX editável e HTML, jornadas conectadas e histórico local.
+São 15 geradores para currículos, orçamentos, recibos, cartas, estudos e outros documentos. Sem cadastro. Funciona no navegador, com modelos, histórico local, Word editável, HTML, TXT e PDF por impressão.
 
-## Identidade visual opcional
-- Faça upload de logotipo PNG/JPG; a imagem é reduzida localmente e incorporada nos documentos.
-- Preencha cabeçalho e rodapé próprios e escolha o alinhamento. Eles aparecem no início e fim do documento, **não em todas as páginas**.
-- Uma identidade padrão pode ser guardada localmente e reaproveitada. Os dados não são transmitidos à hospedagem.
-- Orçamentos oferecem modelos orientativos para 6 situações profissionais. Os preços continuam em branco até o usuário informar os valores.
+## Novidades v0.9
+- Orçamentos com unidade, desconto em percentual ou reais, subtotal e total; valor líquido reaproveitado na ordem de serviço
+- Recibos com valor por extenso e CPF/CNPJ numéricos opcionais, conferidos matematicamente (não há consulta à Receita ou validação de titularidade; CNPJ alfanumérico ainda não suportado)
+- Orientação de preenchimento em currículos e revisão de informações antes da emissão
 
-## Limitações e privacidade
-- Projeto experimental, sem cadastro, pagamentos, analytics ou serviços de IA externos.
-- Documentos, imagens e dados de perfil ficam apenas no armazenamento do navegador; não há sincronização nem backup remoto. Limpar dados pode apagá-los. Faça backup privado.
-- A exportação DOCX simplifica diagramações complexas em colunas; revise o arquivo no Word/LibreOffice.
-- O gerador de trabalho não valida ABNT nem fontes. Recibos não substituem nota fiscal.
-- Site com noindex durante testes; GitHub Pages é usado apenas como demonstração, não como hospedagem comercial.
-- Leia [Privacidade e segurança](privacidade.html).
+## Privacidade e limites
+Dados, documentos e logotipos ficam no armazenamento do seu navegador, sujeitos a perda ou acesso por outras pessoas com acesso ao mesmo dispositivo. Backups JSON podem conter dados pessoais: guarde-os em local privado. O serviço de hospedagem pode registrar dados técnicos, como IP. Evite usar dados reais durante a fase experimental.
+
+Recibo não substitui nota fiscal ou assinatura, trabalho acadêmico não garante conformidade ABNT, e os modelos não substituem revisão profissional.
+
+Esta é uma demonstração sem cobrança, publicidade, telemetria ou IA generativa. A página permanece com noindex durante os testes. O repositório privado de desenvolvimento não está incluído nesta demonstração.
