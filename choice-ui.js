@@ -16,7 +16,7 @@
   close(false);
   const layer=make('div','cg-layer'),backdrop=make('button','cg-backdrop');
   backdrop.type='button';backdrop.setAttribute('aria-label','Fechar opções');backdrop.onclick=()=>close();
-  const menu=make('section','cg-menu cg-menu-'+variant);menu.setAttribute('role','dialog');menu.setAttribute('aria-modal','true');
+  const menu=make('section','cg-menu cg-menu-'+variant);menu.setAttribute('role','dialog');menu.setAttribute('aria-modal','true');menu.setAttribute('aria-label',title);button.setAttribute('aria-expanded','true');
   const head=make('div','cg-menu-header'),x=make('button','cg-menu-close','✕');
   x.type='button';x.setAttribute('aria-label','Fechar opções');x.onclick=()=>close();
   head.append(make('strong','',title),x);menu.append(head);layer.append(backdrop,menu);document.body.append(layer);
