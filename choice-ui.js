@@ -126,9 +126,23 @@
   input.addEventListener('click',e=>{e.preventDefault();b.click()});
   b.onclick=e=>{e.preventDefault();colorMenu(input,b,sync)};
  }
+ function enhanceFile(input){
+  if(done.has(input)||input.id!=='brand-upload')return;
+  done.add(input);input.classList.add('cg-native-file');input.tabIndex=-1;
+  const b=make('button','cg-file-trigger');b.type='button';
+  const ico=make('span','cg-file-icon','↑');ico.setAttribute('aria-hidden','true');
+  const detail=make('span','cg-file-details');detail.append(make('strong','','Selecionar imagem'),make('small','','PNG ou JPG · até 2 MB'));
+  b.append(ico,detail);input.after(b);b.onclick=e=>{e.preventDefault();input.click()};
+  const update=()=>{
+    const present=!!document.querySelector('#document-preview .doc-brand-logo');
+    const label=input.files?.[0]?.name||(present?'Logotipo aplicado':'PNG ou JPG · até 2 MB');
+    const status=detail.querySelector('small');if(status.textContent!==label)status.textContent=label;
+  };
+  input.addEventListener('change',update);b.__syncFile=update;update();
+ }
  function enhance(){
   document.querySelectorAll('select').forEach(enhanceSelect);
-  document.querySelectorAll('input[type="color"]').forEach(enhanceColor);
+  document.querySelectorAll('input[type="color"]').forEach(enhanceColor);document.querySelectorAll('input[type="file"]').forEach(enhanceFile);document.querySelectorAll('.cg-file-trigger').forEach(b=>b.__syncFile?.());
   document.querySelectorAll('select').forEach(syncSelect);
  }
  document.addEventListener('keydown',e=>{
