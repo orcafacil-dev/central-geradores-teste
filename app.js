@@ -17,7 +17,7 @@
   const paleColor=hex=>{const rgb=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));return '#'+rgb.map(n=>Math.round(n*.13+255*.87).toString(16).padStart(2,'0')).join('')};
   function renderPalettes(){const panel=$('color-palettes');panel.replaceChildren();if(!current)return;for(const p of PALETTES){const btn=txt('button','','palette-button');btn.type='button';btn.style.background=p.accent;btn.title=p.name;btn.setAttribute('aria-label','Cor '+p.name);btn.setAttribute('aria-pressed',String(current.data.__appearance.accent===p.accent));btn.onclick=()=>setAppearance({accent:p.accent});panel.append(btn)}}
   function setAppearance(changes){if(!current)return;current.data.__appearance=sanitizeAppearance({...current.data.__appearance,...changes});markChanged();renderPreview()}
-  function reflectAppearance(){if(!current)return;const v=current.data.__appearance=sanitizeAppearance(current.data.__appearance||{});const root=$('document-preview');root.style.setProperty('--custom-accent',v.accent);root.style.setProperty('--custom-pale',paleColor(v.accent));const gallery=$('layout-gallery');gallery.style.setProperty('--preview-accent',v.accent);gallery.style.setProperty('--preview-pale',paleColor(v.accent));const rgb=[1,3,5].map(i=>parseInt(v.accent.slice(i,i+2),16)/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4);const contrast=1.05/(.2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2]+.05);$('appearance-warning').hidden=contrast>=4.5;root.style.setProperty('--custom-font',fontFamily[v.font]);root.style.setProperty('--custom-size',({compacto:'11px',normal:'12px',grande:'14px'})[v.size]);root.dataset.font=v.font;root.dataset.textsize=v.size;$('custom-accent').value=v.accent;$('doc-font').value=v.font;$('doc-size').value=v.size;renderPalettes()}
+  function reflectAppearance(){if(!current)return;const v=current.data.__appearance=sanitizeAppearance(current.data.__appearance||{});const root=$('document-preview');root.style.setProperty('--custom-accent',v.accent);root.style.setProperty('--custom-pale',paleColor(v.accent));const gallery=$('layout-gallery');gallery.style.setProperty('--preview-accent',v.accent);gallery.style.setProperty('--preview-pale',paleColor(v.accent));const rgb=[1,3,5].map(i=>parseInt(v.accent.slice(i,i+2),16)/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4);const contrast=1.05/(.2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2]+.05);$('appearance-warning').hidden=contrast>=4.5;root.style.setProperty('--custom-font',fontFamily[v.font]);root.style.setProperty('--custom-size',({compacto:'11px',normal:'12px',grande:'14px'})[v.size]);root.dataset.font=v.font;root.dataset.textsize=v.size;$('custom-accent').value=v.accent;$('doc-font').value=v.font;$('doc-size').value=v.size;renderPalettes();window.CentralVisualClean?.sync()}
 
   const MAX_DOCUMENTS = 250;
   const MAX_FIELD = 15000;
@@ -244,6 +244,7 @@
     if(document.activeElement!==$('brand-heading'))$('brand-heading').value=brand.heading;if(document.activeElement!==$('brand-footer'))$('brand-footer').value=brand.footer;$('brand-align').value=brand.align;
     $('brand-remove').disabled=!brand.logo;
     $('brand-use-stored').disabled=!stored(BRAND_STORAGE,null);
+    window.CentralVisualClean?.syncBrand(brand);
   }
   function renderBrand(){
     if(!current)return;
