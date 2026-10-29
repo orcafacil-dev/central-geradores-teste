@@ -10,15 +10,16 @@
   <meta name="color-scheme" content="light">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png" type="image/png">
-  <link rel="stylesheet" href="style.css?v=0.9">
+  <link rel="stylesheet" href="style.css?v=1.1">
+  <link rel="stylesheet" href="assistant.css?v=1.1">
   <link rel="stylesheet" href="layouts.css?v=0.9">
-  <link rel="stylesheet" href="choice-ui.css?v=1.0">
   <script src="quality.js?v=0.9" defer></script>
   <script src="layouts.js?v=0.9" defer></script>
   <script src="workflows.js?v=0.9" defer></script>
   <script src="doc-export.js?v=0.9" defer></script>
   <script src="app.js?v=0.9" defer></script>
   <script src="choice-ui.js?v=1.0" defer></script>
+  <script src="assistant.js?v=1.1" defer></script>
 </head>
 <body>
 <a class="skip" href="#workspace">Ir para o editor</a>
@@ -30,10 +31,43 @@
   <div class="header-actions"><span class="tag">GRÁTIS · SEM CADASTRO</span><button id="install-app" class="btn btn-outline" type="button" hidden>Instalar app</button><button id="go-library" class="btn btn-quiet" type="button">Meus documentos <span id="saved-count" class="count">0</span></button></div>
 </header>
 <main>
+  <nav class="product-modes" aria-label="Escolher área da Central">
+    <button id="nav-tools" type="button" aria-pressed="true"><span aria-hidden="true">▦</span> Geradores</button>
+    <button id="nav-ai" type="button" aria-pressed="false"><span aria-hidden="true">✦</span> Criar com IA <span class="new-pill">NOVO</span></button>
+  </nav>
   <section id="inicio" class="hero">
     <div class="hero-copy"><p class="eyebrow"><span class="spark"></span> FERRAMENTAS PARA O DIA A DIA</p><h1>O que você precisa <em>criar hoje?</em></h1><p>15 geradores úteis, orçamento com unidades e descontos, recibo por extenso, identidade visual própria e jornadas que reutilizam dados entre documentos, com modelos visuais, exportação e histórico. Currículo, orçamento, trabalho, carta e muito mais. Escolha um gerador, preencha seus dados e salve em PDF — tudo em um só lugar.</p><div class="hero-benefits"><span>✓ Sem pagar</span><span>✓ PDF e Word editável</span><span>✓ Dados no seu aparelho</span></div></div>
     <div class="hero-illustration" aria-hidden="true"><div class="floating floating-top">CV <span>✓</span></div><div class="paper-illust"><span class="paper-dot"></span><div></div><div></div><div class="short"></div><hr><div></div><div class="short"></div><span class="paper-stamp">PDF</span></div><div class="floating floating-bottom">✳ 15 ferramentas</div></div>
   </section>
+
+  <section id="ai-studio" class="ai-studio" aria-labelledby="ai-heading" hidden>
+    <div class="ai-heading"><span class="ai-kicker">✦ ASSISTENTE DE DOCUMENTOS</span><h1 id="ai-heading">Conte o que precisa. <em>Nós organizamos.</em></h1><p>Escolha a área, o documento e a aparência. Descreva sua necessidade e prepare um rascunho editável, pronto para revisar e exportar em Word, PDF ou HTML.</p><span class="ai-free">✓ Sem cadastro · ✓ Sem APIs pagas · ✓ Dados no aparelho</span></div>
+    <div class="ai-body">
+      <div class="ai-form">
+        <div class="ai-step"><span>01</span><h2>Qual é a área?</h2></div><div id="ai-categories" class="ai-categories" role="group" aria-label="Área do documento"></div>
+        <label class="ai-field"><span>Tipo de documento</span><select id="ai-type" aria-label="Tipo de documento"></select></label>
+        <p id="ai-doc-description" class="ai-hint"></p>
+        <div class="ai-step"><span>02</span><h2>Escolha a organização</h2></div><div id="ai-layouts" class="ai-layouts" role="group" aria-label="Modelos de organização"></div>
+        <div class="ai-step"><span>03</span><h2>Personalize as cores</h2></div><div id="ai-colors" class="ai-colors" role="group" aria-label="Cor principal"></div><label class="ai-field ai-hex-field"><span>Cor personalizada (HEX) — opcional</span><input type="text" id="ai-hex" maxlength="7" placeholder="Ex.: #2058BD" autocomplete="off" spellcheck="false" inputmode="text" aria-label="Cor personalizada no formato HEX"></label>
+        <div class="ai-step"><span>04</span><h2>O que você precisa criar?</h2></div>
+        <label class="ai-field"><span>Conte as informações e instruções</span><textarea id="ai-request" maxlength="5000" rows="8" placeholder="Ex.: Monte um currículo moderno em azul. Nome: Ana Ribeiro. Cargo: Assistente administrativo. Formação: Ensino médio completo..."></textarea></label>
+        <button type="button" id="ai-example" class="ai-example">▤ Preencher com exemplo fictício</button>
+        <label id="ai-actual-payment" class="ai-check" hidden><input id="ai-paid-check" type="checkbox"> <span>Confirmo que o pagamento informado realmente ocorreu. Não desejo gerar um recibo de pagamento inexistente.</span></label>
+        <p id="ai-mode-status" class="ai-mode-status" role="status">Verificando disponibilidade de IA no navegador...</p>
+        <div class="ai-actions"><button type="button" id="ai-generate" class="btn btn-primary">✦ Preparar com IA (se disponível)</button><button type="button" id="ai-guided" class="btn btn-outline">Preparar sem IA</button></div>
+        <p id="ai-status" class="ai-status" role="status" aria-live="polite"></p>
+      </div>
+      <aside class="ai-explainer" aria-label="Como funciona">
+        <span class="ai-kicker">COMO FUNCIONA</span><h3>O documento continua sendo seu.</h3>
+        <div class="ai-explainer-point"><strong>1. Organize</strong><p>Dados explícitos são reconhecidos e colocados nos campos corretos. Sem dados suficientes, o campo continua vazio.</p></div>
+        <div class="ai-explainer-point"><strong>2. Revise</strong><p>Você entra no editor normal da Central e ajusta informações, estilo, cabeçalho e logotipo.</p></div>
+        <div class="ai-explainer-point"><strong>3. Exporte</strong><p>Escolha Word editável, PDF pela impressão, HTML ou TXT. Os dados continuam no navegador.</p></div>
+        <p class="ai-integrity">A IA generativa só funciona em navegadores compatíveis com um modelo local. No Android, use a preparação guiada, que não inventa conteúdo. Não criamos pagamentos, currículos ou referências fictícias automaticamente.</p>
+        <div class="ai-result" aria-live="polite"><strong>Último resultado</strong><p id="ai-summary">Nenhum documento preparado nesta sessão.</p><small id="ai-missing"></small></div>
+      </aside>
+    </div>
+  </section>
+
   <section class="journeys" id="jornadas" aria-labelledby="journeys-heading">
     <div class="journeys-head"><p class="eyebrow">MENOS DIGITAÇÃO, MAIS RESULTADO</p><h2 id="journeys-heading">O que você quer resolver?</h2><p>Comece por uma necessidade. Ao salvar o primeiro documento, você poderá aproveitar os dados no próximo, sem inventar informações.</p></div>
     <div id="journey-grid" class="journey-grid"></div>
