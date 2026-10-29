@@ -349,6 +349,7 @@
   $('clear-profile').onclick=()=>{if(!confirm('Apagar os dados pessoais do perfil salvo somente neste navegador?'))return;localStorage.removeItem(PROFILE);$('apply-profile').disabled=true;toast('Perfil local apagado.')};
   window.addEventListener('hashchange',openHashTool);
   window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
+  window.CentralGeradores={tools:tools.map(t=>({id:t.id,name:t.name,category:t.category,help:t.help,fields:t.fields.map(f=>({key:f.key,label:f.label,required:!!f.required}))})),openDraft:(type,data)=>{window.dispatchEvent(new Event('cg:editor-open'));openTool(type,null,data)},showNotice:(message)=>toast(message)};
   displayCategories();
   displayJourneys();
   for(const tool of tools){const option=txt('option',tool.name);option.value=tool.id;$('library-filter').append(option)}
