@@ -53,3 +53,7 @@ body.cg-dialog-open{overflow:hidden}
 .cg-file-details strong{font-size:13px;font-weight:750}
 .cg-file-details small{font-size:11px;color:#69827d;overflow-wrap:anywhere}
 @media print{.cg-file-trigger{display:none!important}}
+
+/* Conter rótulos longos nos grids mais estreitos do celular. */
+.appearance-controls .cg-trigger,.appearance-controls label{min-width:0;max-width:100%}
+.cg-trigger{min-width:0;max-width:100%;box-sizing:border-box}
