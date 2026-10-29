@@ -1,14 +1,15 @@
-# Central de Geradores — demonstração pública
+# Central de Geradores — demonstração pública v0.3
 
-Protótipo experimental gratuito com oito geradores de documentos para uso no navegador.
+Teste a ferramenta em: https://orcafacil-dev.github.io/central-geradores-teste/
 
-## Acesso
-Abra o endereço do GitHub Pages deste repositório quando a publicação estiver habilitada.
-
-## Privacidade
-O aplicativo não possui login, servidor de dados, cobrança, análises ou rastreamento externo. O conteúdo que você digita é mantido no armazenamento local **deste navegador** e pode ser perdido se os dados forem apagados. Não compartilhe arquivos de backup com desconhecidos. Não utilize dados pessoais reais durante a fase experimental.
+15 geradores gratuitos para currículos, orçamentos, cartas, proposta comercial, ordem de serviço, estudo, gastos, atendimento, reunião e outros documentos. Sem cadastro ou cobrança. Três modelos visuais, modelos iniciais de preenchimento, backup local e opção de imprimir/salvar PDF.
 
 ## Limitações
-Ferramenta em testes. Currículos, orçamentos, cartas, recibos, trabalhos e declarações precisam ser revisados antes de utilização formal. Recibos não substituem nota fiscal. O gerador acadêmico não garante conformidade ABNT nem verifica fontes.
+- Os documentos ficam somente no armazenamento local do navegador e podem se perder. Faça backup e guarde-o em segurança.
+- O site é experimental. Evite informações sensíveis. O provedor de hospedagem pode registrar dados técnicos da conexão.
+- PDF é gerado pela função de impressão do navegador; TXT não mantém a formatação.
+- Recibos não substituem notas fiscais; conteúdos acadêmicos não são verificados conforme ABNT.
+- A demonstração não inclui serviços de IA, publicidade, pagamentos ou rastreamento.
+- Versão de testes com meta de buscadores `noindex` até a validação.
 
-Código-fonte de demonstração, não a base privada de desenvolvimento. Não inclui chaves ou credenciais.
+Leia [Privacidade e segurança](privacidade.html).
