@@ -1,6 +1,6 @@
 /* Central de Geradores - PWA offline shell. No client documents or private data are cached by this worker. */
-const CACHE='central-geradores-shell-v12';
-const FILES=['./','./index.html','./style.css?v=1.1','./layouts.css?v=0.9','./workflows.js?v=0.9','./doc-export.js?v=0.9','./app.js?v=0.9','./quality.js?v=0.9','./layouts.js?v=0.9','./choice-ui.js?v=1.0','./choice-ui.css?v=1.0','./assistant.js?v=1.2','./assistant.css?v=1.2','./i18n.js?v=1.2','./i18n.css?v=1.2','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./privacidade.html'];
+const CACHE='central-geradores-shell-v13';
+const FILES=['./','./index.html','./visual-clean.css?v=1.3','./visual-clean.js?v=1.3','./style.css?v=1.1','./layouts.css?v=1.3','./workflows.js?v=0.9','./doc-export.js?v=0.9','./app.js?v=1.3','./quality.js?v=0.9','./layouts.js?v=0.9','./choice-ui.js?v=1.3','./choice-ui.css?v=1.3','./assistant.js?v=1.2','./assistant.css?v=1.2','./i18n.js?v=1.2','./i18n.css?v=1.2','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./privacidade.html'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('central-geradores-shell-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{
