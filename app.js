@@ -6,9 +6,12 @@
   const DRAFTS = 'central-geradores.drafts.v1';
   const PROFILE = 'central-geradores.profile.v1';
   const FAVORITES = 'central-geradores.favorites.v1';
+  const BRAND_STORAGE = 'central-geradores.brand.v1';
   const THEMES = ['classico','moderno','elegante'];
   const PALETTES=[{name:'Verde',accent:'#14785f'},{name:'Azul',accent:'#2456a6'},{name:'Vinho',accent:'#873c59'},{name:'Roxo',accent:'#6551a8'},{name:'Laranja',accent:'#a55121'},{name:'Grafite',accent:'#374151'}];
   const safeAccent=c=>typeof c==='string'&&/^#[0-9a-fA-F]{6}$/.test(c)?c.toLowerCase():'#14785f';
+  const safeBrandLogo=v=>typeof v==='string'&&v.length<=240000&&/^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(v)?v:'';
+  const sanitizeBrand=v=>({logo:safeBrandLogo(v?.logo),heading:typeof v?.heading==='string'?v.heading.slice(0,180):'',footer:typeof v?.footer==='string'?v.footer.slice(0,240):'',align:['left','center','right'].includes(v?.align)?v.align:'left'});
   const sanitizeAppearance=x=>({accent:safeAccent(x.accent),font:['sans','serif','compact'].includes(x.font)?x.font:'sans',size:['compacto','normal','grande'].includes(x.size)?x.size:'normal'});
   const fontFamily={sans:'Arial,Helvetica,sans-serif',serif:'Georgia,Times New Roman,serif',compact:'Calibri,Arial,sans-serif'};
   const paleColor=hex=>{const rgb=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));return '#'+rgb.map(n=>Math.round(n*.13+255*.87).toString(16).padStart(2,'0')).join('')};
@@ -89,12 +92,13 @@
   ];
   const STARTERS={
     curriculo:[{label:'Primeiro emprego (orientação)',data:{summary:'Busco uma primeira oportunidade para aprender e contribuir com responsabilidade. [Adapte este resumo à sua realidade.]',skills:'[Liste habilidades que você realmente possui]'}}],
-    orcamento:[{label:'Instalação de ar-condicionado',data:{service:'Instalação de ar-condicionado split',notes:'Conferir local de instalação, materiais necessários e condições de garantia antes de enviar.',items:[{description:'Mão de obra de instalação',quantity:'1',price:''},{description:'Materiais necessários',quantity:'1',price:''}]}},{label:'Serviço elétrico residencial',data:{service:'Manutenção elétrica residencial',items:[{description:'Mão de obra',quantity:'1',price:''},{description:'Peças e materiais',quantity:'1',price:''}]}}],
+    orcamento:[{label:'Instalação de ar-condicionado',data:{service:'Instalação de ar-condicionado split',notes:'Conferir local de instalação, materiais necessários e condições de garantia antes de enviar.',items:[{description:'Mão de obra de instalação',quantity:'1',price:''},{description:'Materiais necessários',quantity:'1',price:''}]}},{label:'Serviço elétrico residencial',data:{service:'Manutenção elétrica residencial',items:[{description:'Mão de obra',quantity:'1',price:''},{description:'Peças e materiais',quantity:'1',price:''}]}},{label:'Pintura residencial',data:{service:'Pintura residencial',notes:'Informe área, preparação de superfícies, materiais incluídos e prazo real.',items:[{description:'Preparação de superfícies',quantity:'1',price:''},{description:'Mão de obra de pintura',quantity:'1',price:''},{description:'Tintas e materiais',quantity:'1',price:''}]}},{label:'Reparo hidráulico',data:{service:'Manutenção hidráulica',notes:'Confirmar peças, condições de acesso e testes após o reparo.',items:[{description:'Diagnóstico e mão de obra',quantity:'1',price:''},{description:'Conexões e materiais',quantity:'1',price:''}]}},{label:'Limpeza residencial',data:{service:'Limpeza residencial',notes:'Definir ambientes, produtos, frequência e itens não incluídos.',items:[{description:'Serviço de limpeza',quantity:'1',price:''},{description:'Produtos e materiais (se incluídos)',quantity:'1',price:''}]}},{label:'Manutenção de computadores',data:{service:'Manutenção de computador',notes:'Registrar diagnóstico, autorização e eventual substituição de peças.',items:[{description:'Diagnóstico técnico',quantity:'1',price:''},{description:'Serviço de manutenção',quantity:'1',price:''},{description:'Peças (se necessárias)',quantity:'1',price:''}]}}],
     trabalho:[{label:'Estrutura de trabalho escolar',data:{intro:'[Apresente o tema, o objetivo e a importância do trabalho.]',development:'[Explique seus argumentos, com dados e referências reais.]',conclusion:'[Retome os pontos principais e o que aprendeu.]'}}],
     carta:[{label:'Solicitação de informações',data:{subject:'Solicitação de informações',greeting:'Prezados(as),',body:'Gostaria de solicitar informações sobre [assunto]. Agradeço a atenção e fico no aguardo de uma resposta.',closing:'Atenciosamente,'}}],
     proposta:[{label:'Serviço de manutenção',data:{scope:'Realização de manutenção conforme necessidade identificada em avaliação técnica.',deliverables:'Visita de avaliação\nExecução do serviço acordado\nOrientação de uso e cuidados',notes:'Valores e materiais precisam ser confirmados antes da aceitação.'}}],
     apresentacao:[{label:'Candidatura a primeiro emprego',data:{reason:'Tenho interesse em desenvolver minhas habilidades na função e contribuir com a equipe. [Personalize com suas motivações reais.]'}}],
     estudos:[{label:'Rotina de estudo semanal',data:{schedule:'Segunda — leitura e anotações\nTerça — exercícios\nQuarta — revisão\nQuinta — prática\nSexta — simulado e correção',review:'Revisar os assuntos mais difíceis ao fim de cada semana.'}}],
+    ordem:[{label:'Instalação de ar-condicionado',data:{description:'Instalação do equipamento conforme avaliação e escopo autorizado.',materials:'[Descreva os materiais confirmados]',notes:'Confirme data, local e autorização do cliente antes da execução.'}},{label:'Reparo elétrico',data:{description:'Serviço de manutenção elétrica conforme avaliação técnica.',materials:'[Liste somente peças efetivamente aplicadas ou previstas, conforme a situação]'}}],
     reuniao:[{label:'Reunião de projeto',data:{agenda:'Objetivos e andamento\nPrazos e responsabilidades\nRiscos e próximos passos'}}]
   };
   const toolMap=Object.fromEntries(tools.map(t=>[t.id,t]));
@@ -103,8 +107,8 @@
   let activeCategory='Todas', favorites=stored(FAVORITES,[]);if(!Array.isArray(favorites))favorites=[];
   let docs=[], drafts={}, current=null, dirty=false, toastTimer, currentView='edit', installPrompt=null;
   function toast(msg){const e=$('toast');e.textContent=msg;e.classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.classList.remove('visible'),4500)}
-  function defaults(tool){const d={};for(const f of tool.fields)d[f.key]='';if(tool.id==='orcamento'){d.items=[{description:'Mão de obra',quantity:'1',price:''}];d.date=today();d.validity=afterDays(15)}if(['carta','recibo','checklist','declaracao'].includes(tool.id))d.date=today();if(tool.id==='planejamento')d.start=today();if(tool.id==='trabalho')d.year=String(new Date().getFullYear());if(['ordem','atendimento','reuniao'].includes(tool.id))d.date=today();if(tool.id==='estudos')d.start=today();if(tool.id==='carta'){d.greeting='Prezados(as),';d.closing='Atenciosamente,'}if(tool.id==='recibo')d.method='Pix';d.__theme='classico';d.__appearance={accent:'#14785f',font:'sans',size:'normal'};return d}
-  function sanitizeData(tool,raw){const out=defaults(tool);if(raw&&typeof raw==='object'){for(const f of tool.fields){if(typeof raw[f.key]==='string')out[f.key]=trimValue(raw[f.key]);}if(THEMES.includes(raw.__theme))out.__theme=raw.__theme;if(raw.__appearance&&typeof raw.__appearance==='object')out.__appearance=sanitizeAppearance(raw.__appearance);if(tool.repeat&&Array.isArray(raw.items))out.items=raw.items.slice(0,80).map(x=>({description:trimValue(x?.description,500),quantity:trimValue(String(x?.quantity??''),20),price:trimValue(String(x?.price??''),20)}));}return out}
+  function defaults(tool){const d={};for(const f of tool.fields)d[f.key]='';if(tool.id==='orcamento'){d.items=[{description:'Mão de obra',quantity:'1',price:''}];d.date=today();d.validity=afterDays(15)}if(['carta','recibo','checklist','declaracao'].includes(tool.id))d.date=today();if(tool.id==='planejamento')d.start=today();if(tool.id==='trabalho')d.year=String(new Date().getFullYear());if(['ordem','atendimento','reuniao'].includes(tool.id))d.date=today();if(tool.id==='estudos')d.start=today();if(tool.id==='carta'){d.greeting='Prezados(as),';d.closing='Atenciosamente,'}if(tool.id==='recibo')d.method='Pix';d.__theme='classico';d.__appearance={accent:'#14785f',font:'sans',size:'normal'};d.__brand=sanitizeBrand();return d}
+  function sanitizeData(tool,raw){const out=defaults(tool);if(raw&&typeof raw==='object'){for(const f of tool.fields){if(typeof raw[f.key]==='string')out[f.key]=trimValue(raw[f.key]);}if(THEMES.includes(raw.__theme))out.__theme=raw.__theme;if(raw.__appearance&&typeof raw.__appearance==='object')out.__appearance=sanitizeAppearance(raw.__appearance);if(raw.__brand&&typeof raw.__brand==='object')out.__brand=sanitizeBrand(raw.__brand);if(tool.repeat&&Array.isArray(raw.items))out.items=raw.items.slice(0,80).map(x=>({description:trimValue(x?.description,500),quantity:trimValue(String(x?.quantity??''),20),price:trimValue(String(x?.price??''),20)}));}return out}
   function restoreState(){const raw=stored(STORAGE,[]);docs=Array.isArray(raw)?raw.filter(x=>x&&typeof x.id==='string'&&typeof x.type==='string'&&Object.prototype.hasOwnProperty.call(toolMap,x.type)&&x.data&&typeof x.data==='object').slice(0,MAX_DOCUMENTS).map(x=>({id:x.id.slice(0,90),type:x.type,data:sanitizeData(toolMap[x.type],x.data),updatedAt:typeof x.updatedAt==='string'?x.updatedAt:new Date(0).toISOString()})):[];const rawDraft=stored(DRAFTS,{});if(rawDraft&&typeof rawDraft==='object'&&!Array.isArray(rawDraft))for(const tool of tools)if(rawDraft[tool.id]?.data)drafts[tool.id]={id:typeof rawDraft[tool.id].id==='string'?rawDraft[tool.id].id:null,data:sanitizeData(tool,rawDraft[tool.id].data)}}
   function saveDraft(){if(!current)return;drafts[current.type]={id:current.id,data:current.data};persist(DRAFTS,drafts)}
   function displayJourneys(){
@@ -189,7 +193,54 @@
   function previewAtendimento(root,d){docTop(root,'FICHA DE ATENDIMENTO',titleCase(d.provider),d.client);para(root,'Data: '+formatDate(d.date));para(root,'Contato: '+(d.contact||'—'));section(root,'Solicitação',d.request);section(root,'Informações observadas',d.assessment);section(root,'Ações combinadas',d.action);section(root,'Próximo passo',d.next);root.append(txt('p','Restrinja o compartilhamento, pois este registro pode conter dados pessoais.','doc-warning'))}
   function previewReuniao(root,d){docTop(root,'REGISTRO DE REUNIÃO',titleCase(d.title),[formatDate(d.date),d.location].filter(Boolean).join(' · '));bulletSection(root,'Participantes',d.participants);bulletSection(root,'Pauta',d.agenda);bulletSection(root,'Decisões',d.decisions);bulletSection(root,'Responsáveis e próximos passos',d.actions);section(root,'Observações',d.notes);root.append(txt('p','Revise o texto com os participantes antes de distribuir.','doc-warning'))}
   const previewers={curriculo:previewCurriculo,orcamento:previewOrcamento,trabalho:previewTrabalho,carta:previewCarta,recibo:previewRecibo,checklist:previewChecklist,planejamento:previewPlanejamento,declaracao:previewDeclaracao,apresentacao:previewApresentacao,proposta:previewProposta,ordem:previewOrdem,estudos:previewEstudos,gastos:previewGastos,atendimento:previewAtendimento,reuniao:previewReuniao};
-  function renderPreview(){if(!current)return;const root=previewRoot();root.className='document-preview theme-'+(THEMES.includes(current.data.__theme)?current.data.__theme:'classico');previewers[current.type](root,current.data);if(window.GeneratorLayouts){window.GeneratorLayouts.apply(root,current.type,current.data);window.GeneratorLayouts.renderPicker($('layout-gallery'),current.type,current.data.__theme,(theme)=>{$('template-style').value=theme;current.data.__theme=theme;markChanged();renderPreview()})}reflectAppearance()}
+  function renderPreview(){if(!current)return;const root=previewRoot();root.className='document-preview theme-'+(THEMES.includes(current.data.__theme)?current.data.__theme:'classico');previewers[current.type](root,current.data);if(window.GeneratorLayouts){window.GeneratorLayouts.apply(root,current.type,current.data);window.GeneratorLayouts.renderPicker($('layout-gallery'),current.type,current.data.__theme,(theme)=>{$('template-style').value=theme;current.data.__theme=theme;markChanged();renderPreview()})}reflectAppearance();renderBrand()}
+  function updateBrandControls(){
+    if(!current)return;
+    const brand=current.data.__brand=sanitizeBrand(current.data.__brand);
+    if(document.activeElement!==$('brand-heading'))$('brand-heading').value=brand.heading;
+    if(document.activeElement!==$('brand-footer'))$('brand-footer').value=brand.footer;
+    $('brand-align').value=brand.align;
+    $('brand-remove').disabled=!brand.logo;
+    $('brand-use-stored').disabled=!stored(BRAND_STORAGE,null);
+  }
+  function renderBrand(){
+    if(!current)return;
+    const brand=current.data.__brand=sanitizeBrand(current.data.__brand);
+    const root=$('document-preview');
+    if(brand.logo||brand.heading){
+      const header=txt('div','','doc-brand-header');header.dataset.align=brand.align;
+      if(brand.logo){const image=document.createElement('img');image.src=brand.logo;image.alt='Logotipo do documento';image.className='doc-brand-logo';header.append(image)}
+      if(brand.heading)header.append(txt('span',brand.heading,'doc-brand-heading'));
+      root.prepend(header);
+    }
+    if(brand.footer){const footer=txt('div',brand.footer,'doc-brand-footer');footer.dataset.align=brand.align;root.append(footer)}
+    updateBrandControls();
+  }
+  function changeBrand(changes){if(!current)return;current.data.__brand=sanitizeBrand({...current.data.__brand,...changes});markChanged();renderPreview()}
+  async function readBrandLogo(file){
+    if(!file)return;
+    if(!['image/png','image/jpeg'].includes(file.type)||file.size>2*1024*1024){toast('Envie uma imagem PNG ou JPG de até 2 MB.');return}
+    const url=URL.createObjectURL(file);
+    try{
+      const image=new Image();await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(Error('Imagem inválida'));image.src=url});
+      if(!image.naturalWidth||!image.naturalHeight||image.naturalWidth*image.naturalHeight>25_000_000)throw Error('Dimensões inválidas');
+      const factor=Math.min(1,500/image.naturalWidth,180/image.naturalHeight),width=Math.max(1,Math.round(image.naturalWidth*factor)),height=Math.max(1,Math.round(image.naturalHeight*factor));
+      const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+      const ctx=canvas.getContext('2d');if(!ctx)throw Error('Canvas indisponível');ctx.drawImage(image,0,0,width,height);
+      let encoded=canvas.toDataURL('image/png');
+      if(encoded.length>180000){ctx.globalCompositeOperation='destination-over';ctx.fillStyle='white';ctx.fillRect(0,0,width,height);encoded=canvas.toDataURL('image/jpeg',0.77)}
+      if(!safeBrandLogo(encoded))throw Error('Imagem excede o limite após a compactação');
+      changeBrand({logo:encoded});toast('Logotipo adicionado ao documento.');
+    }catch(error){toast('Falha ao carregar o logotipo: '+error.message)}
+    finally{URL.revokeObjectURL(url);$('brand-upload').value=''}
+  }
+  function saveBrandDefault(){
+    if(!current)return;
+    const brand=sanitizeBrand(current.data.__brand);
+    if(!brand.logo&&!brand.heading&&!brand.footer){toast('Personalize o cabeçalho, rodapé ou logotipo primeiro.');return}
+    if(persist(BRAND_STORAGE,brand)){toast('Identidade salva neste navegador.');updateBrandControls()}
+  }
+  function applyBrandDefault(){const brand=stored(BRAND_STORAGE,null);if(!brand){toast('Nenhuma identidade salva.');return}changeBrand(sanitizeBrand(brand));toast('Identidade aplicada a este documento.')}
   function refreshCount(){$('saved-count').textContent=docs.length}
   function docTitle(entry){const d=entry.data;return titleCase(d.title||d.name||d.company||d.subject||d.receiver||d.sender||d.service||toolMap[entry.type].name)}
   function showLibrary(){drawLibrary();$('library').hidden=false;$('library').scrollIntoView({behavior:'smooth',block:'start'})}
@@ -219,7 +270,7 @@
     if(!current||!valid())return;
     const api=window.DocumentExport;if(!api){toast('Exportação indisponível. Recarregue o aplicativo.');return}
     const appearance=sanitizeAppearance(current.data.__appearance||{});
-    const options={...appearance,title:docTitle({type:current.type,data:current.data})};
+    const options={...appearance,brand:sanitizeBrand(current.data.__brand),title:docTitle({type:current.type,data:current.data})};
     const name=api.filename(current.type+'-'+options.title,kind==='docx'?'docx':'html');
     try{
       if(kind==='docx')api.download(api.createDocx($('document-preview'),options),name);
@@ -239,6 +290,14 @@
   $('copy-text').onclick=copyText;$('download-text').onclick=exportText;$('share-text').onclick=shareText;
   $('download-word').onclick=()=>exportOffice('docx');$('download-html').onclick=()=>exportOffice('html');
   $('custom-accent').addEventListener('input',e=>setAppearance({accent:e.target.value}));$('doc-font').addEventListener('change',e=>setAppearance({font:e.target.value}));$('doc-size').addEventListener('change',e=>setAppearance({size:e.target.value}));$('reset-appearance').onclick=()=>setAppearance({accent:'#14785f',font:'sans',size:'normal'});
+  $('brand-upload').onchange=e=>readBrandLogo(e.target.files?.[0]);
+  $('brand-remove').onclick=()=>changeBrand({logo:''});
+  $('brand-heading').addEventListener('input',e=>changeBrand({heading:e.target.value}));
+  $('brand-footer').addEventListener('input',e=>changeBrand({footer:e.target.value}));
+  $('brand-align').addEventListener('change',e=>changeBrand({align:e.target.value}));
+  $('brand-store').onclick=saveBrandDefault;
+  $('brand-use-stored').onclick=applyBrandDefault;
+  $('brand-clear-stored').onclick=()=>{if(!confirm('Apagar a identidade padrão salva neste navegador? Os documentos existentes não serão alterados.'))return;localStorage.removeItem(BRAND_STORAGE);updateBrandControls();toast('Identidade padrão apagada.')};
   $('save-profile').onclick=saveProfile;$('apply-profile').onclick=applyProfile;
   $('view-edit').onclick=()=>setView('edit');$('view-preview').onclick=()=>setView('preview');
   $('install-app').hidden=true;

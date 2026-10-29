@@ -56,24 +56,46 @@
   for(const child of children)collect(child,opts,out);
   return out;
  }
+ function embeddedLogo(opts){
+  const image=opts.brand?.logo;
+  if(typeof image!=='string'||image.length>240000)return null;
+  const match=/^data:image\/(png|jpeg);base64,([A-Za-z0-9+/=]+)$/.exec(image);
+  if(!match)return null;
+  try{const data=atob(match[2]);if(!data||data.length>180000)return null;
+    const bytes=Uint8Array.from(data,x=>x.charCodeAt(0));
+    const isPng=match[1]==='png';
+    if(isPng&&!(bytes[0]===137&&bytes[1]===80&&bytes[2]===78&&bytes[3]===71))return null;
+    if(!isPng&&!(bytes[0]===255&&bytes[1]===216&&bytes[2]===255))return null;
+    return {bytes,ext:isPng?'png':'jpg'};
+  }catch{return null}
+ }
+ const drawing=(cx,cy)=>"<w:p><w:pPr><w:spacing w:after=\"180\"/></w:pPr><w:r><w:drawing><wp:inline xmlns:wp=\"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing\" distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\"><wp:extent cx=\"__CX__\" cy=\"__CY__\"/><wp:docPr id=\"1\" name=\"Logotipo\"/><a:graphic xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><a:graphicData uri=\"http://schemas.openxmlformats.org/drawingml/2006/picture\"><pic:pic xmlns:pic=\"http://schemas.openxmlformats.org/drawingml/2006/picture\"><pic:nvPicPr><pic:cNvPr id=\"2\" name=\"Logotipo\"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rIdLogo\"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x=\"0\" y=\"0\"/><a:ext cx=\"__CX__\" cy=\"__CY__\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>".replaceAll("__CX__",cx).replaceAll("__CY__",cy);
  function createDocx(root,opts={}){
   if(!root||!root.children)throw Error('Prévia do documento indisponível');
-  const content=collect(root,opts).join('')||paragraph('Documento vazio','body',opts);
+  const logo=embeddedLogo(opts);
+  const image=root.querySelector('.doc-brand-logo');
+  const ratio=image?.naturalWidth&&image?.naturalHeight?image.naturalWidth/image.naturalHeight:3;
+  const width=Math.min(1905000,Math.round(650000*ratio)),height=Math.min(650000,Math.round(width/ratio));
+  const content=(logo?drawing(width,height):'')+(collect(root,opts).join('')||paragraph('Documento vazio','body',opts));
   const doc=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${content}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>`;
   const title=safeXml(String(opts.title||'Documento').slice(0,140));
   const files={
-   '[Content_Types].xml':'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>',
+   '[Content_Types].xml':'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Default Extension="jpg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>',
    '_rels/.rels':'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>',
    'word/document.xml':doc,
    'docProps/core.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>${title}</dc:title><dc:creator>Central de Geradores</dc:creator></cp:coreProperties>`,
    'docProps/app.xml':'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>Central de Geradores</Application></Properties>'
   };
+  if(logo){
+    files['word/media/logo.'+logo.ext]=logo.bytes;
+    files['word/_rels/document.xml.rels']='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdLogo" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/logo.'+logo.ext+'"/></Relationships>';
+  }
   return new Blob([zipStore(files)],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
  }
  function createHtml(root,opts={}){
   const accent='#'+safeColor(opts.accent),font=safeFont(opts.font),title=safeXml(String(opts.title||'Documento').slice(0,140));
   const size=({compacto:10,normal:11,grande:12})[opts.size]||11;
-  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>body{font:${size}pt/1.55 ${font},Arial,sans-serif;max-width:840px;margin:40px auto;padding:0 25px;color:#24343b}h1,h2,h3{color:${accent};break-after:avoid}h1{font-size:2em}h2{font-size:1.3em}p{white-space:pre-wrap}table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #dae5e2;text-align:left;padding:9px}ul{padding-left:22px}.layout-resume-columns,.layout-resume-footer-columns,.layout-generic-shell{display:grid;grid-template-columns:1fr 2fr;gap:22px}.layout-resume-aside{padding:18px;background:#f3f7f5}.layout-quote-banner{padding:18px;border-top:5px solid ${accent}}.doc-warning{color:#63717a;font-size:.85em}@media print{@page{size:A4;margin:16mm}body{margin:0;padding:0}}</style></head><body>${root.innerHTML}</body></html>`;
+  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>body{font:${size}pt/1.55 ${font},Arial,sans-serif;max-width:840px;margin:40px auto;padding:0 25px;color:#24343b}h1,h2,h3{color:${accent};break-after:avoid}h1{font-size:2em}h2{font-size:1.3em}p{white-space:pre-wrap}table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #dae5e2;text-align:left;padding:9px}ul{padding-left:22px}.layout-resume-columns,.layout-resume-footer-columns,.layout-generic-shell{display:grid;grid-template-columns:1fr 2fr;gap:22px}.layout-resume-aside{padding:18px;background:#f3f7f5}.layout-quote-banner{padding:18px;border-top:5px solid ${accent}}.doc-warning{color:#63717a;font-size:.85em}.doc-brand-header{display:flex;align-items:center;gap:14px;border-bottom:2px solid ${accent};padding-bottom:12px;margin-bottom:18px}.doc-brand-logo{max-width:150px;max-height:75px;object-fit:contain}.doc-brand-heading{font-weight:600}.doc-brand-header[data-align=center]{flex-direction:column;text-align:center}.doc-brand-header[data-align=right]{flex-direction:row-reverse;text-align:right}.doc-brand-footer{border-top:1px solid #bbb;margin-top:24px;padding-top:12px;color:#526b64}.doc-brand-footer[data-align=center]{text-align:center}.doc-brand-footer[data-align=right]{text-align:right}@media print{@page{size:A4;margin:16mm}body{margin:0;padding:0}}</style></head><body>${root.innerHTML}</body></html>`;
  }
  const filename=(base,ext)=>String(base||'documento').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,65).replace(/^$/,'documento')+'.'+ext;
  function download(blob,name){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.hidden=true;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3500)}
