@@ -32,11 +32,11 @@
   <link rel="stylesheet" href="readiness.css?v=1.5">
   <script src="visual-clean.js?v=1.3" defer></script>
   <link rel="stylesheet" href="commerce.css?v=1.6">
-  <link rel="stylesheet" href="ai-bridge.css?v=1.6">
+  <link rel="stylesheet" href="ai-bridge.css?v=1.6.1">
   <script src="auth-config.js?v=1.6" defer></script>
   <script src="commerce.js?v=1.6" defer></script>
   <script src="commerce-l10n.js?v=1.6" defer></script>
-  <script src="ai-bridge.js?v=1.6" defer></script>
+  <script src="ai-bridge.js?v=1.6.1" defer></script>
   <script src="backup-i18n.js?v=1.4" defer></script>
 </head>
 <body>
@@ -74,7 +74,7 @@
         <div class="ai-step"><span>04</span><h2>O que você precisa criar?</h2></div>
         <label class="ai-field"><span>Conte as informações e instruções</span><textarea id="ai-request" maxlength="5000" rows="8" placeholder="Ex.: Monte um currículo moderno em azul. Nome: Ana Ribeiro. Cargo: Assistente administrativo. Formação: Ensino médio completo..."></textarea></label>
         <button type="button" id="ai-example" class="ai-example">▤ Preencher com exemplo fictício</button>
-        <div class="cg-ai-bridge" aria-label="Usar um assistente externo opcional"><button type="button" id="cg-copy-ai-prompt" class="btn btn-outline">Copiar prompt preparado</button><small>Para usar com uma IA gratuita de sua escolha, sem colocar chaves no navegador. Revise a resposta antes de utilizá-la.</small></div>
+        <div class="cg-ai-bridge" aria-label="Usar um assistente externo opcional"><button type="button" id="cg-copy-ai-prompt" class="btn btn-outline">Copiar prompt preparado</button><button type="button" id="cg-import-ai-response" class="btn btn-outline">Colar resposta da IA</button><small>Para usar com uma IA gratuita de sua escolha, sem colocar chaves no navegador. Revise a resposta antes de utilizá-la.</small></div>
         <label id="ai-actual-payment" class="ai-check" hidden><input id="ai-paid-check" type="checkbox"> <span>Confirmo que o pagamento informado realmente ocorreu. Não desejo gerar um recibo de pagamento inexistente.</span></label>
         <p id="ai-mode-status" class="ai-mode-status" role="status">Verificando recursos do navegador...</p>
         <div class="ai-actions"><button type="button" id="ai-generate" class="btn btn-primary">✦ Criar documento</button></div>
@@ -178,6 +178,8 @@
   </div>
 </dialog>
 <dialog id="cg-ai-prompt-dialog" class="cg-ai-prompt-dialog" aria-labelledby="cg-ai-prompt-title"><div class="cg-ai-prompt-body"><h2 id="cg-ai-prompt-title">Copiar prompt para IA gratuita</h2><p>Ao copiar e colar em um serviço externo, os dados passam a seguir a política desse serviço. Revise o conteúdo antes de usar.</p><textarea id="cg-ai-prompt-preview" readonly aria-label="Prompt pronto para copiar"></textarea><button type="button" id="cg-ai-prompt-close">Fechar</button></div></dialog>
+<dialog id="cg-ai-import-dialog" class="cg-ai-prompt-dialog" aria-labelledby="cg-ai-import-title"><div class="cg-ai-prompt-body"><h2 id="cg-ai-import-title">Usar resposta de um assistente externo</h2><p>Cole linhas com rótulos, por exemplo: «Nome: Ana» ou «Empresa: Oficina Exemplo». A Central organiza os dados localmente e permite revisá-los antes da exportação.</p><textarea id="cg-ai-import-text" maxlength="12000" aria-label="Cole a resposta produzida por um serviço de IA" placeholder="Nome: ...
+Experiência: ..."></textarea><div class="cg-ai-import-actions"><button id="cg-ai-import-close" type="button">Cancelar</button><button id="cg-ai-import-apply" type="button">Revisar no editor</button></div></div></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
