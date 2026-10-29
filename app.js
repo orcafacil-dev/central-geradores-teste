@@ -151,7 +151,7 @@
   function applyProfile(){if(!current)return;const storedProfile=stored(PROFILE,{});const profile=storedProfile&&typeof storedProfile==='object'&&!Array.isArray(storedProfile)?storedProfile:{};const map=PROFILE_FIELDS[current.type]||{};let count=0;for(const [field,key] of Object.entries(map)){if(typeof current.data[field]==='string'&&!current.data[field].trim()&&typeof profile[key]==='string'){current.data[field]=trimValue(profile[key],200);count++}}if(!count){toast('Nenhum campo próprio vazio encontrado.');return}markChanged();renderForm();renderPreview();toast('Campos próprios preenchidos com seu perfil local.')}
   function setView(view){currentView=view;const w=$('workspace');w.classList.toggle('show-preview',view==='preview');$('view-edit').setAttribute('aria-pressed',String(view==='edit'));$('view-preview').setAttribute('aria-pressed',String(view==='preview'));if(view==='preview'&&window.innerWidth<=1000){$('document-preview').scrollIntoView({block:'start',behavior:'smooth'})}}
   function openHashTool(){const m=location.hash.match(/^#gerador\/([a-z_]+)$/);if(m&&toolMap[m[1]]&&current?.type!==m[1])openTool(m[1])}
-  $('apply-starter').onclick=applyStarter;
+  $('apply-starter')?.addEventListener('click',applyStarter);
   $('template-style').addEventListener('change',e=>{if(!current)return;current.data.__theme=THEMES.includes(e.target.value)?e.target.value:'classico';markChanged();renderPreview()});
   $('copy-text').onclick=copyText;$('download-text').onclick=exportText;$('share-text').onclick=shareText;
   $('save-profile').onclick=saveProfile;$('apply-profile').onclick=applyProfile;
