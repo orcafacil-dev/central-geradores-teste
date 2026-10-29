@@ -112,7 +112,16 @@
   function save(){if(!valid())return;if(docs.length>=MAX_DOCUMENTS&&!current.id){toast('Limite de documentos salvos. Exporte backup e exclua alguns itens.');return}const id=current.id||uid(),entry={id,type:current.type,data:sanitizeData(toolMap[current.type],current.data),updatedAt:new Date().toISOString()};const next=[entry,...docs.filter(d=>d.id!==id)];if(persist(STORAGE,next)){docs=next;current.id=id;dirty=false;delete drafts[current.type];persist(DRAFTS,drafts);refreshCount();toast('Documento salvo neste navegador. Lembre-se de fazer backup.')}}
   function fresh(){if(dirty&&!confirm('Criar novo documento? As alterações ainda não salvas serão descartadas.'))return;const type=current.type;current={type,id:null,data:defaults(toolMap[type])};dirty=false;delete drafts[type];persist(DRAFTS,drafts);renderForm();renderPreview();toast('Novo documento iniciado.')}
   function duplicate(){if(!current)return;current={type:current.type,id:null,data:sanitizeData(toolMap[current.type],current.data)};dirty=true;saveDraft();renderForm();renderPreview();toast('Cópia criada. Salve para registrar separadamente.')}
-  function printDoc(){if(!valid())return;const old=document.title;document.title=toolMap[current.type].name+' — Central de Geradores';window.print();document.title=old}
+  function printDoc(){if(!valid())return;
+    const old=document.title;
+    const preferred=(docTitle({type:current.type,data:current.data})+' — '+toolMap[current.type].name).slice(0,110);
+    document.title=preferred;
+    let restored=false;
+    function restore(){if(restored)return;restored=true;window.removeEventListener('afterprint',restore);document.title=old}
+    window.addEventListener('afterprint',restore,{once:true});
+    try{window.print()}catch(e){restore();toast('A impressão não está disponível neste navegador.')}
+    setTimeout(restore,30000);
+  }
   function previewRoot(){const root=$('document-preview');root.replaceChildren();return root}
   function docTop(root,label,title,sub){root.append(txt('div',label,'doc-tag'));heading(root,title,'h1');para(root,sub,'muted');root.append(txt('hr','','doc-rule'))}
   function bulletSection(root,label,text,check=false){const arr=lines(text);if(!arr.length)return;heading(root,label);const ul=txt('ul','',check?'doc-list doc-check-list':'doc-list');arr.forEach(line=>ul.append(txt('li',line)));root.append(ul)}
@@ -139,7 +148,20 @@
   function refreshCount(){$('saved-count').textContent=docs.length}
   function docTitle(entry){const d=entry.data;return titleCase(d.title||d.name||d.company||d.subject||d.receiver||d.sender||d.service||toolMap[entry.type].name)}
   function showLibrary(){drawLibrary();$('library').hidden=false;$('library').scrollIntoView({behavior:'smooth',block:'start'})}
-  function drawLibrary(){const list=$('document-list');list.replaceChildren();if(!docs.length){list.append(txt('p','Nenhum documento salvo. Crie um e clique em “Salvar”.','empty'));return}for(const entry of docs){const card=txt('div','','saved-card');const info=txt('div');append(info,txt('span',toolMap[entry.type].name,'doc-tag'),txt('h3',docTitle(entry)),txt('p','Atualizado em '+(isNaN(Date.parse(entry.updatedAt))?'—':new Date(entry.updatedAt).toLocaleString('pt-BR'))));const actions=txt('div','','saved-card-actions');const open=txt('button','Abrir'),del=txt('button','Excluir','danger');open.type='button';del.type='button';open.setAttribute('aria-label','Abrir '+docTitle(entry));del.setAttribute('aria-label','Excluir '+docTitle(entry));open.onclick=()=>openTool(entry.type,entry);del.onclick=()=>{if(!confirm('Excluir '+docTitle(entry)+'? A exclusão não pode ser desfeita sem backup.'))return;const next=docs.filter(x=>x.id!==entry.id);if(persist(STORAGE,next)){docs=next;refreshCount();drawLibrary();toast('Documento excluído.')}};append(actions,open,del);append(card,info,actions);list.append(card)}}
+  function drawLibrary(){
+    const list=$('document-list');list.replaceChildren();
+    const term=($('library-search')?.value||'').trim().toLocaleLowerCase('pt-BR');
+    const type=$('library-filter')?.value||'all';
+    const visible=docs.filter(entry=>{
+      if(type!=='all'&&entry.type!==type)return false;
+      if(!term)return true;
+      const d=entry.data;
+      const haystack=[docTitle(entry),toolMap[entry.type].name,d.client,d.student,d.company,d.service,d.name,d.recipient,d.provider].filter(x=>typeof x==='string').join(' ').toLocaleLowerCase('pt-BR');
+      return haystack.includes(term);
+    });
+    $('library-summary').textContent=`Exibindo ${visible.length} de ${docs.length} documento(s) salvos neste navegador.`;
+    if(!visible.length){list.append(txt('p',docs.length?'Nenhum documento corresponde à busca.':'Nenhum documento salvo. Crie um e clique em “Salvar”.','empty'));return}
+    for(const entry of visible){const card=txt('div','','saved-card');const info=txt('div');append(info,txt('span',toolMap[entry.type].name,'doc-tag'),txt('h3',docTitle(entry)),txt('p','Atualizado em '+(isNaN(Date.parse(entry.updatedAt))?'—':new Date(entry.updatedAt).toLocaleString('pt-BR'))));const actions=txt('div','','saved-card-actions');const open=txt('button','Abrir'),del=txt('button','Excluir','danger');open.type='button';del.type='button';open.setAttribute('aria-label','Abrir '+docTitle(entry));del.setAttribute('aria-label','Excluir '+docTitle(entry));open.onclick=()=>openTool(entry.type,entry);del.onclick=()=>{if(!confirm('Excluir '+docTitle(entry)+'? A exclusão não pode ser desfeita sem backup.'))return;const next=docs.filter(x=>x.id!==entry.id);if(persist(STORAGE,next)){docs=next;refreshCount();drawLibrary();toast('Documento excluído.')}};append(actions,open,del);append(card,info,actions);list.append(card)}}
   function backup(){const blob=new Blob([JSON.stringify({format:'central-geradores-backup',version:1,exportedAt:new Date().toISOString(),documents:docs},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='central-geradores-backup-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);toast('Backup gerado. Guarde o arquivo em local seguro.')}
   async function importBackup(file){if(!file)return;try{if(file.size>5e6)throw Error('arquivo maior que 5 MB');const parsed=JSON.parse(await file.text());if(parsed.format!=='central-geradores-backup'||parsed.version!==1||!Array.isArray(parsed.documents)||parsed.documents.length>MAX_DOCUMENTS)throw Error('formato incompatível');if(!parsed.documents.every(x=>x&&typeof x.id==='string'&&x.id.length<=90&&typeof x.type==='string'&&Object.prototype.hasOwnProperty.call(toolMap,x.type)&&x.data&&typeof x.data==='object')||new Set(parsed.documents.map(x=>x.id)).size!==parsed.documents.length)throw Error('dados inválidos ou identificadores repetidos');const clean=parsed.documents.map(x=>({id:x.id.slice(0,90),type:x.type,data:sanitizeData(toolMap[x.type],x.data),updatedAt:typeof x.updatedAt==='string'?x.updatedAt:today()}));if(!confirm(`Restaurar ${clean.length} documento(s)? O histórico atual será substituído. Faça backup dele primeiro.`))return;if(persist(STORAGE,clean)){docs=clean;refreshCount();drawLibrary();toast('Backup restaurado com sucesso.')}}catch(e){toast('Falha ao restaurar: '+e.message)}finally{$('import-data').value=''}}
   function plainText(){return $('document-preview').innerText||$('document-preview').textContent||''}
@@ -164,6 +186,9 @@
   window.addEventListener('hashchange',openHashTool);
   window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
   displayCategories();
+  for(const tool of tools){const option=txt('option',tool.name);option.value=tool.id;$('library-filter').append(option)}
+  $('library-search').addEventListener('input',drawLibrary);
+  $('library-filter').addEventListener('change',drawLibrary);
   $('tool-search').addEventListener('input',e=>displayTools(e.target.value));$('back-tools').onclick=()=>{$('explorar').scrollIntoView({behavior:'smooth'});window.location.hash='explorar'};$('go-library').onclick=showLibrary;$('library-close').onclick=()=>$('library').hidden=true;$('new-document').onclick=fresh;$('duplicate-document').onclick=duplicate;$('save-document').onclick=save;$('save-document-bottom').onclick=save;$('print-document').onclick=printDoc;$('export-data').onclick=backup;$('import-trigger').onclick=()=>$('import-data').click();$('import-data').addEventListener('change',e=>importBackup(e.target.files[0]));
   document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&current){e.preventDefault();save()}});
   window.addEventListener('storage',e=>{if(e.key===STORAGE)toast('Documentos alterados em outra aba. Recarregue esta página antes de salvar.')});
