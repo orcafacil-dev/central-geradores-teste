@@ -7,6 +7,15 @@
   const PROFILE = 'central-geradores.profile.v1';
   const FAVORITES = 'central-geradores.favorites.v1';
   const THEMES = ['classico','moderno','elegante'];
+  const PALETTES=[{name:'Verde',accent:'#14785f'},{name:'Azul',accent:'#2456a6'},{name:'Vinho',accent:'#873c59'},{name:'Roxo',accent:'#6551a8'},{name:'Laranja',accent:'#a55121'},{name:'Grafite',accent:'#374151'}];
+  const safeAccent=c=>typeof c==='string'&&/^#[0-9a-fA-F]{6}$/.test(c)?c.toLowerCase():'#14785f';
+  const sanitizeAppearance=x=>({accent:safeAccent(x.accent),font:['sans','serif','compact'].includes(x.font)?x.font:'sans',size:['compacto','normal','grande'].includes(x.size)?x.size:'normal'});
+  const fontFamily={sans:'Arial,Helvetica,sans-serif',serif:'Georgia,Times New Roman,serif',compact:'Calibri,Arial,sans-serif'};
+  const paleColor=hex=>{const rgb=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));return '#'+rgb.map(n=>Math.round(n*.13+255*.87).toString(16).padStart(2,'0')).join('')};
+  function renderPalettes(){const panel=$('color-palettes');panel.replaceChildren();if(!current)return;for(const p of PALETTES){const btn=txt('button','','palette-button');btn.type='button';btn.style.background=p.accent;btn.title=p.name;btn.setAttribute('aria-label','Cor '+p.name);btn.setAttribute('aria-pressed',String(current.data.__appearance.accent===p.accent));btn.onclick=()=>setAppearance({accent:p.accent});panel.append(btn)}}
+  function setAppearance(changes){if(!current)return;current.data.__appearance=sanitizeAppearance({...current.data.__appearance,...changes});markChanged();renderPreview()}
+  function reflectAppearance(){if(!current)return;const v=current.data.__appearance=sanitizeAppearance(current.data.__appearance||{});const root=$('document-preview');root.style.setProperty('--custom-accent',v.accent);root.style.setProperty('--custom-pale',paleColor(v.accent));const gallery=$('layout-gallery');gallery.style.setProperty('--preview-accent',v.accent);gallery.style.setProperty('--preview-pale',paleColor(v.accent));const rgb=[1,3,5].map(i=>parseInt(v.accent.slice(i,i+2),16)/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4);const contrast=1.05/(.2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2]+.05);$('appearance-warning').hidden=contrast>=4.5;root.style.setProperty('--custom-font',fontFamily[v.font]);root.style.setProperty('--custom-size',({compacto:'11px',normal:'12px',grande:'14px'})[v.size]);root.dataset.font=v.font;root.dataset.textsize=v.size;$('custom-accent').value=v.accent;$('doc-font').value=v.font;$('doc-size').value=v.size;renderPalettes()}
+
   const MAX_DOCUMENTS = 250;
   const MAX_FIELD = 15000;
   const money = n => new Intl.NumberFormat('pt-BR', {style:'currency',currency:'BRL'}).format(n);
@@ -94,8 +103,8 @@
   let activeCategory='Todas', favorites=stored(FAVORITES,[]);if(!Array.isArray(favorites))favorites=[];
   let docs=[], drafts={}, current=null, dirty=false, toastTimer, currentView='edit', installPrompt=null;
   function toast(msg){const e=$('toast');e.textContent=msg;e.classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.classList.remove('visible'),4500)}
-  function defaults(tool){const d={};for(const f of tool.fields)d[f.key]='';if(tool.id==='orcamento'){d.items=[{description:'Mão de obra',quantity:'1',price:''}];d.date=today();d.validity=afterDays(15)}if(['carta','recibo','checklist','declaracao'].includes(tool.id))d.date=today();if(tool.id==='planejamento')d.start=today();if(tool.id==='trabalho')d.year=String(new Date().getFullYear());if(['ordem','atendimento','reuniao'].includes(tool.id))d.date=today();if(tool.id==='estudos')d.start=today();if(tool.id==='carta'){d.greeting='Prezados(as),';d.closing='Atenciosamente,'}if(tool.id==='recibo')d.method='Pix';d.__theme='classico';return d}
-  function sanitizeData(tool,raw){const out=defaults(tool);if(raw&&typeof raw==='object'){for(const f of tool.fields){if(typeof raw[f.key]==='string')out[f.key]=trimValue(raw[f.key]);}if(THEMES.includes(raw.__theme))out.__theme=raw.__theme;if(tool.repeat&&Array.isArray(raw.items))out.items=raw.items.slice(0,80).map(x=>({description:trimValue(x?.description,500),quantity:trimValue(String(x?.quantity??''),20),price:trimValue(String(x?.price??''),20)}));}return out}
+  function defaults(tool){const d={};for(const f of tool.fields)d[f.key]='';if(tool.id==='orcamento'){d.items=[{description:'Mão de obra',quantity:'1',price:''}];d.date=today();d.validity=afterDays(15)}if(['carta','recibo','checklist','declaracao'].includes(tool.id))d.date=today();if(tool.id==='planejamento')d.start=today();if(tool.id==='trabalho')d.year=String(new Date().getFullYear());if(['ordem','atendimento','reuniao'].includes(tool.id))d.date=today();if(tool.id==='estudos')d.start=today();if(tool.id==='carta'){d.greeting='Prezados(as),';d.closing='Atenciosamente,'}if(tool.id==='recibo')d.method='Pix';d.__theme='classico';d.__appearance={accent:'#14785f',font:'sans',size:'normal'};return d}
+  function sanitizeData(tool,raw){const out=defaults(tool);if(raw&&typeof raw==='object'){for(const f of tool.fields){if(typeof raw[f.key]==='string')out[f.key]=trimValue(raw[f.key]);}if(THEMES.includes(raw.__theme))out.__theme=raw.__theme;if(raw.__appearance&&typeof raw.__appearance==='object')out.__appearance=sanitizeAppearance(raw.__appearance);if(tool.repeat&&Array.isArray(raw.items))out.items=raw.items.slice(0,80).map(x=>({description:trimValue(x?.description,500),quantity:trimValue(String(x?.quantity??''),20),price:trimValue(String(x?.price??''),20)}));}return out}
   function restoreState(){const raw=stored(STORAGE,[]);docs=Array.isArray(raw)?raw.filter(x=>x&&typeof x.id==='string'&&typeof x.type==='string'&&Object.prototype.hasOwnProperty.call(toolMap,x.type)&&x.data&&typeof x.data==='object').slice(0,MAX_DOCUMENTS).map(x=>({id:x.id.slice(0,90),type:x.type,data:sanitizeData(toolMap[x.type],x.data),updatedAt:typeof x.updatedAt==='string'?x.updatedAt:new Date(0).toISOString()})):[];const rawDraft=stored(DRAFTS,{});if(rawDraft&&typeof rawDraft==='object'&&!Array.isArray(rawDraft))for(const tool of tools)if(rawDraft[tool.id]?.data)drafts[tool.id]={id:typeof rawDraft[tool.id].id==='string'?rawDraft[tool.id].id:null,data:sanitizeData(tool,rawDraft[tool.id].data)}}
   function saveDraft(){if(!current)return;drafts[current.type]={id:current.id,data:current.data};persist(DRAFTS,drafts)}
   function displayJourneys(){
@@ -104,25 +113,35 @@
     for(const j of window.DocumentFlows.JOURNEYS){
       const b=txt('button','','journey-card');b.type='button';b.dataset.journey=j.id;
       append(b,txt('span',j.icon,'journey-icon'),txt('strong',j.title),txt('span',j.description,'journey-description'),txt('span','Começar com '+toolMap[j.start].name+' →','journey-go'));
-      b.onclick=()=>openTool(j.start);target.append(b);
+      b.onclick=()=>openTool(j.start);
+      target.append(b);
     }
   }
   function renderFlow(){
-    const panel=$('flow-panel'),f=window.DocumentFlows,next=current&&f?f.nextFor(current.type):null;
-    panel.hidden=!next;if(!next)return;
-    const descriptions={ordem:'Transforme este orçamento em ordem de serviço, preservando cliente, prestador e valor combinado.',recibo:'Prepare recibo apenas após confirmar que houve pagamento.',apresentacao:'Crie uma carta usando os dados do currículo, complementando empresa e motivação.',checklist:'Transforme os assuntos do plano de estudos em uma lista de tarefas.'};
+    const panel=$('flow-panel'),f=window.DocumentFlows;
+    const next=current&&f?f.nextFor(current.type):null;
+    panel.hidden=!next;
+    if(!next)return;
+    const descriptions={ordem:'Transforme este orçamento em uma ordem de serviço, preservando cliente, prestador e valor combinado.',recibo:'Prepare um recibo somente após confirmar que houve pagamento.',apresentacao:'Crie uma carta usando os dados do currículo, complementando empresa e motivação.',checklist:'Transforme os assuntos do plano de estudos numa lista de tarefas.'};
     $('flow-description').textContent=descriptions[next];
     $('flow-continue').textContent='Salvar e preparar '+toolMap[next].name+' →';
-    $('flow-disclaimer').textContent=next==='recibo'?'Valor efetivamente recebido e data deverão ser informados manualmente.':'O novo documento é um rascunho independente e editável.';
+    $('flow-disclaimer').textContent=next==='recibo'?'O valor efetivamente recebido e a data de pagamento deverão ser preenchidos manualmente.':'O próximo documento é um rascunho novo, editável e independente.';
   }
   function continueFrom(type,data){
-    const f=window.DocumentFlows,next=f?.nextFor(type);if(!next)return;
-    if(next==='recibo'&&!confirm('Antes de emitir um recibo, confirme que o pagamento realmente aconteceu. Deseja preparar um rascunho, com valor e data em branco?'))return;
+    const f=window.DocumentFlows,next=f?.nextFor(type);
+    if(!next)return;
+    if(next==='recibo'&&!confirm('Antes de emitir um recibo, confirme que o pagamento realmente aconteceu. Deseja preparar um rascunho de recibo, com valor e data em branco?'))return;
     if(drafts[next]?.data&&!confirm('Já existe um rascunho de '+toolMap[next].name+'. Deseja substituí-lo?'))return;
-    const values=f.transfer(type,next,data);openTool(next,null,values);
+    const values=f.transfer(type,next,data);
+    openTool(next,null,values);
     toast('Dados reaproveitados. Confira os campos e salve o novo documento quando estiver correto.');
   }
-  function saveAndContinue(){if(!current)return;const from=current.type,info=current.data;if(!save())return;continueFrom(from,info)}
+  function saveAndContinue(){
+    if(!current)return;
+    const from=current.type,info=current.data;
+    if(!save())return;
+    continueFrom(from,info);
+  }
   function displayCategories(){const wrap=$('category-filters');if(!wrap)return;wrap.replaceChildren();const cats=['Todas','Favoritos',...new Set(tools.map(t=>t.category))];for(const cat of cats){const b=txt('button',cat,'category-chip');b.type='button';b.setAttribute('aria-pressed',String(cat===activeCategory));b.onclick=()=>{activeCategory=cat;displayCategories();displayTools($('tool-search').value)};wrap.append(b)}}
   function displayTools(filter=''){const grid=$('tool-grid');grid.replaceChildren();const norm=filter.trim().toLocaleLowerCase('pt-BR');let n=0;for(const tool of tools){if(!(tool.name+' '+tool.desc+' '+tool.category).toLocaleLowerCase('pt-BR').includes(norm))continue;if(activeCategory==='Favoritos'&&!favorites.includes(tool.id))continue;if(activeCategory!=='Todas'&&activeCategory!=='Favoritos'&&activeCategory!==tool.category)continue;n++;const box=txt('div','','tool-tile');const btn=txt('button','','tool-card');btn.type='button';btn.dataset.tool=tool.id;const icon=txt('span',tool.icon,'tool-icon '+tool.tone);icon.setAttribute('aria-hidden','true');append(btn,icon,txt('small',tool.category,'tool-category'),txt('strong',tool.name),txt('span',tool.desc,'tool-desc'));btn.onclick=()=>openTool(tool.id);const star=txt('button',favorites.includes(tool.id)?'★':'☆','favorite-btn');star.type='button';star.title='Favoritar '+tool.name;star.setAttribute('aria-label',(favorites.includes(tool.id)?'Remover dos favoritos: ':'Adicionar aos favoritos: ')+tool.name);star.onclick=()=>{favorites=favorites.includes(tool.id)?favorites.filter(x=>x!==tool.id):[...favorites,tool.id];persist(FAVORITES,favorites);displayTools($('tool-search').value)};append(box,btn,star);grid.append(box)}$('tools-empty').hidden=n>0}
   function formInput(field,value,change){const wrapper=txt('label','','field');const caption=txt('span',field.label+(field.required?' *':''),'field-label');wrapper.append(caption);let input;if(field.type==='textarea'){input=document.createElement('textarea');input.rows=4}else if(field.type==='select'){input=document.createElement('select');for(const o of field.options||[]){const option=txt('option',o);option.value=o;input.append(option)}}else{input=document.createElement('input');input.type=field.type==='decimal'?'text':field.type;if(field.type==='decimal')input.inputMode='decimal'}input.name=field.key;input.value=value??'';if(field.required)input.required=true;if(field.placeholder)input.placeholder=field.placeholder;input.maxLength=MAX_FIELD;input.addEventListener('input',()=>change(input.value));input.addEventListener('change',()=>change(input.value));wrapper.append(input);if(field.hint)wrapper.append(txt('span',field.hint,'field-hint'));return wrapper}
@@ -144,7 +163,8 @@
     let restored=false;
     function restore(){if(restored)return;restored=true;window.removeEventListener('afterprint',restore);document.title=old}
     window.addEventListener('afterprint',restore,{once:true});
-    try{window.print()}catch(e){restore();toast('A impressão não está disponível neste navegador.')}
+    try{window.print()}catch(e){restore();toast('A impressão não está disponível neste navegador.')} 
+    // Em alguns navegadores não há evento afterprint; restaura o título depois.
     setTimeout(restore,30000);
   }
   function previewRoot(){const root=$('document-preview');root.replaceChildren();return root}
@@ -169,7 +189,7 @@
   function previewAtendimento(root,d){docTop(root,'FICHA DE ATENDIMENTO',titleCase(d.provider),d.client);para(root,'Data: '+formatDate(d.date));para(root,'Contato: '+(d.contact||'—'));section(root,'Solicitação',d.request);section(root,'Informações observadas',d.assessment);section(root,'Ações combinadas',d.action);section(root,'Próximo passo',d.next);root.append(txt('p','Restrinja o compartilhamento, pois este registro pode conter dados pessoais.','doc-warning'))}
   function previewReuniao(root,d){docTop(root,'REGISTRO DE REUNIÃO',titleCase(d.title),[formatDate(d.date),d.location].filter(Boolean).join(' · '));bulletSection(root,'Participantes',d.participants);bulletSection(root,'Pauta',d.agenda);bulletSection(root,'Decisões',d.decisions);bulletSection(root,'Responsáveis e próximos passos',d.actions);section(root,'Observações',d.notes);root.append(txt('p','Revise o texto com os participantes antes de distribuir.','doc-warning'))}
   const previewers={curriculo:previewCurriculo,orcamento:previewOrcamento,trabalho:previewTrabalho,carta:previewCarta,recibo:previewRecibo,checklist:previewChecklist,planejamento:previewPlanejamento,declaracao:previewDeclaracao,apresentacao:previewApresentacao,proposta:previewProposta,ordem:previewOrdem,estudos:previewEstudos,gastos:previewGastos,atendimento:previewAtendimento,reuniao:previewReuniao};
-  function renderPreview(){if(!current)return;const root=previewRoot();root.className='document-preview theme-'+(THEMES.includes(current.data.__theme)?current.data.__theme:'classico');previewers[current.type](root,current.data);if(window.GeneratorLayouts){window.GeneratorLayouts.apply(root,current.type,current.data);window.GeneratorLayouts.renderPicker($('layout-gallery'),current.type,current.data.__theme,(theme)=>{$('template-style').value=theme;current.data.__theme=theme;markChanged();renderPreview()})}}
+  function renderPreview(){if(!current)return;const root=previewRoot();root.className='document-preview theme-'+(THEMES.includes(current.data.__theme)?current.data.__theme:'classico');previewers[current.type](root,current.data);if(window.GeneratorLayouts){window.GeneratorLayouts.apply(root,current.type,current.data);window.GeneratorLayouts.renderPicker($('layout-gallery'),current.type,current.data.__theme,(theme)=>{$('template-style').value=theme;current.data.__theme=theme;markChanged();renderPreview()})}reflectAppearance()}
   function refreshCount(){$('saved-count').textContent=docs.length}
   function docTitle(entry){const d=entry.data;return titleCase(d.title||d.name||d.company||d.subject||d.receiver||d.sender||d.service||toolMap[entry.type].name)}
   function showLibrary(){drawLibrary();$('library').hidden=false;$('library').scrollIntoView({behavior:'smooth',block:'start'})}
@@ -186,12 +206,27 @@
     });
     $('library-summary').textContent=`Exibindo ${visible.length} de ${docs.length} documento(s) salvos neste navegador.`;
     if(!visible.length){list.append(txt('p',docs.length?'Nenhum documento corresponde à busca.':'Nenhum documento salvo. Crie um e clique em “Salvar”.','empty'));return}
-    for(const entry of visible){const card=txt('div','','saved-card');const info=txt('div');append(info,txt('span',toolMap[entry.type].name,'doc-tag'),txt('h3',docTitle(entry)),txt('p','Atualizado em '+(isNaN(Date.parse(entry.updatedAt))?'—':new Date(entry.updatedAt).toLocaleString('pt-BR'))));const actions=txt('div','','saved-card-actions');const open=txt('button','Abrir'),del=txt('button','Excluir','danger');open.type='button';del.type='button';open.setAttribute('aria-label','Abrir '+docTitle(entry));del.setAttribute('aria-label','Excluir '+docTitle(entry));open.onclick=()=>openTool(entry.type,entry);del.onclick=()=>{if(!confirm('Excluir '+docTitle(entry)+'? A exclusão não pode ser desfeita sem backup.'))return;const next=docs.filter(x=>x.id!==entry.id);if(persist(STORAGE,next)){docs=next;refreshCount();drawLibrary();toast('Documento excluído.')}};append(actions,open);const next=window.DocumentFlows?.nextFor(entry.type);if(next){const convert=txt('button','Continuar: '+toolMap[next].name,'next-doc-btn');convert.type='button';convert.setAttribute('aria-label','Criar '+toolMap[next].name+' a partir de '+docTitle(entry));convert.onclick=()=>continueFrom(entry.type,entry.data);actions.append(convert)}actions.append(del);append(card,info,actions);list.append(card)}}
+    for(const entry of visible){const card=txt('div','','saved-card');const info=txt('div');append(info,txt('span',toolMap[entry.type].name,'doc-tag'),txt('h3',docTitle(entry)),txt('p','Atualizado em '+(isNaN(Date.parse(entry.updatedAt))?'—':new Date(entry.updatedAt).toLocaleString('pt-BR'))));const actions=txt('div','','saved-card-actions');const open=txt('button','Abrir'),del=txt('button','Excluir','danger');open.type='button';del.type='button';open.setAttribute('aria-label','Abrir '+docTitle(entry));del.setAttribute('aria-label','Excluir '+docTitle(entry));open.onclick=()=>openTool(entry.type,entry);del.onclick=()=>{if(!confirm('Excluir '+docTitle(entry)+'? A exclusão não pode ser desfeita sem backup.'))return;const next=docs.filter(x=>x.id!==entry.id);if(persist(STORAGE,next)){docs=next;refreshCount();drawLibrary();toast('Documento excluído.')}};append(actions,open);
+      const next=window.DocumentFlows?.nextFor(entry.type);
+      if(next){const convert=txt('button','Continuar: '+toolMap[next].name,'next-doc-btn');convert.type='button';convert.setAttribute('aria-label','Criar '+toolMap[next].name+' a partir de '+docTitle(entry));convert.onclick=()=>continueFrom(entry.type,entry.data);actions.append(convert)}
+      actions.append(del);append(card,info,actions);list.append(card)}}
   function backup(){const blob=new Blob([JSON.stringify({format:'central-geradores-backup',version:1,exportedAt:new Date().toISOString(),documents:docs},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='central-geradores-backup-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);toast('Backup gerado. Guarde o arquivo em local seguro.')}
   async function importBackup(file){if(!file)return;try{if(file.size>5e6)throw Error('arquivo maior que 5 MB');const parsed=JSON.parse(await file.text());if(parsed.format!=='central-geradores-backup'||parsed.version!==1||!Array.isArray(parsed.documents)||parsed.documents.length>MAX_DOCUMENTS)throw Error('formato incompatível');if(!parsed.documents.every(x=>x&&typeof x.id==='string'&&x.id.length<=90&&typeof x.type==='string'&&Object.prototype.hasOwnProperty.call(toolMap,x.type)&&x.data&&typeof x.data==='object')||new Set(parsed.documents.map(x=>x.id)).size!==parsed.documents.length)throw Error('dados inválidos ou identificadores repetidos');const clean=parsed.documents.map(x=>({id:x.id.slice(0,90),type:x.type,data:sanitizeData(toolMap[x.type],x.data),updatedAt:typeof x.updatedAt==='string'?x.updatedAt:today()}));if(!confirm(`Restaurar ${clean.length} documento(s)? O histórico atual será substituído. Faça backup dele primeiro.`))return;if(persist(STORAGE,clean)){docs=clean;refreshCount();drawLibrary();toast('Backup restaurado com sucesso.')}}catch(e){toast('Falha ao restaurar: '+e.message)}finally{$('import-data').value=''}}
   function plainText(){return $('document-preview').innerText||$('document-preview').textContent||''}
   async function copyText(){if(!current||!valid())return;try{if(!navigator.clipboard?.writeText)throw Error('Clipboard indisponível');await navigator.clipboard.writeText(plainText());toast('Texto copiado!')}catch{toast('Cópia indisponível neste navegador. Tente baixar o TXT.')}}
   function exportText(){if(!current||!valid())return;const data=plainText();const blob=new Blob([data],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='gerador-'+current.type+'-'+today()+'.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);toast('Arquivo de texto baixado.')}
+  function exportOffice(kind){
+    if(!current||!valid())return;
+    const api=window.DocumentExport;if(!api){toast('Exportação indisponível. Recarregue o aplicativo.');return}
+    const appearance=sanitizeAppearance(current.data.__appearance||{});
+    const options={...appearance,title:docTitle({type:current.type,data:current.data})};
+    const name=api.filename(current.type+'-'+options.title,kind==='docx'?'docx':'html');
+    try{
+      if(kind==='docx')api.download(api.createDocx($('document-preview'),options),name);
+      else api.download(new Blob([api.createHtml($('document-preview'),options)],{type:'text/html;charset=utf-8'}),name);
+      toast(kind==='docx'?'Word editável gerado. Revise a diagramação no editor.':'HTML independente baixado.');
+    }catch(error){toast('Não foi possível exportar: '+error.message)}
+  }
   async function shareText(){if(!current||!valid())return;const payload={title:toolMap[current.type].name,text:plainText()};if(navigator.share){try{await navigator.share(payload);return}catch(e){if(e?.name==='AbortError')return}}await copyText()}
   const PROFILE_FIELDS={curriculo:{name:'person',city:'city',phone:'phone',email:'email'},orcamento:{company:'business'},trabalho:{student:'person',city:'city'},carta:{sender:'person',city:'city'},recibo:{receiver:'business'},checklist:{owner:'person'},declaracao:{name:'person',city:'city'},apresentacao:{name:'person'},proposta:{company:'business'},ordem:{provider:'business'},estudos:{student:'person'},atendimento:{provider:'business'}};
   function saveProfile(){if(!current)return;const map=PROFILE_FIELDS[current.type]||{},old=stored(PROFILE,{});const data=old&&typeof old==='object'&&!Array.isArray(old)?{...old}:{};let count=0;for(const [field,key] of Object.entries(map)){const value=current.data[field];if(typeof value==='string'&&value.trim()){data[key]=trimValue(value.trim(),200);count++}}if(!count){toast('Preencha dados próprios de nome, empresa ou contato para salvar.');return}if(persist(PROFILE,data)){toast('Dados próprios salvos somente neste navegador.');$('apply-profile').disabled=false}}
@@ -202,6 +237,8 @@
   $('flow-continue').onclick=saveAndContinue;
   $('template-style').addEventListener('change',e=>{if(!current)return;current.data.__theme=THEMES.includes(e.target.value)?e.target.value:'classico';markChanged();renderPreview()});
   $('copy-text').onclick=copyText;$('download-text').onclick=exportText;$('share-text').onclick=shareText;
+  $('download-word').onclick=()=>exportOffice('docx');$('download-html').onclick=()=>exportOffice('html');
+  $('custom-accent').addEventListener('input',e=>setAppearance({accent:e.target.value}));$('doc-font').addEventListener('change',e=>setAppearance({font:e.target.value}));$('doc-size').addEventListener('change',e=>setAppearance({size:e.target.value}));$('reset-appearance').onclick=()=>setAppearance({accent:'#14785f',font:'sans',size:'normal'});
   $('save-profile').onclick=saveProfile;$('apply-profile').onclick=applyProfile;
   $('view-edit').onclick=()=>setView('edit');$('view-preview').onclick=()=>setView('preview');
   $('install-app').hidden=true;

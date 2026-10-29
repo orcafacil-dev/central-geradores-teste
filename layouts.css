@@ -1,4 +1,4 @@
-/* Central de Geradores 0.4: três composições de página com estrutura diferente. */
+/* Modelos 0.4 — organizam semanticamente os documentos, não apenas as cores. */
 .layout-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:2px 0 8px}
 .layout-choice{display:flex;flex-direction:column;align-items:start;text-align:left;background:#fff;border:1px solid #dbe8e1;border-radius:12px;padding:10px;min-width:0;color:#193e3b;transition:box-shadow .15s,border-color .15s}
 .layout-choice:hover{border-color:#378a71;box-shadow:0 3px 14px #183c3415}
@@ -40,9 +40,7 @@
 .document-preview .layout-quote-banner{display:grid;grid-template-columns:minmax(0,1fr) minmax(115px,.65fr);gap:9px;align-items:center;background:#def1e8;padding:22px 16px;border-radius:10px}
 .document-preview .layout-quote-banner h1{font-size:23px}
 .document-preview .layout-quote-banner .layout-head{margin:0}
-.document-preview .layout-quote-highlight{font-weight:800;font-size:20px;color:#09624b;text-align:right;overflow-wrap:anywhere}
-.document-preview .layout-quote-highlight small{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;margin-bottom:6px}
-.document-preview .layout-quote-highlight strong{font-weight:900}
+.document-preview .layout-quote-highlight small{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;margin-bottom:6px}.document-preview .layout-quote-highlight strong{font-weight:900}.document-preview .layout-quote-highlight{font-weight:800;font-size:20px;color:#09624b;text-align:right;overflow-wrap:anywhere}
 .document-preview .layout-quote-body{padding-top:18px}
 .document-preview .layout-quote-body>h2{font-size:14px;margin:12px 0 9px}
 .document-preview .layout-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;background:#f5f8f5;padding:13px;border-radius:9px;margin-bottom:15px}
@@ -74,10 +72,54 @@
 .document-preview.theme-elegante .layout-generic-head{text-align:center;border-color:#786186}
 .document-preview.theme-elegante .layout-generic-editorial h2{font-family:Georgia,'Times New Roman',serif;border-bottom:1px solid #ebdeeb;padding-bottom:9px;font-size:17px}
 @media(max-width:660px){.layout-gallery{gap:6px}.layout-choice{padding:7px}.layout-choice[aria-pressed="true"]{padding:6px}.layout-choice small{font-size:9px}.layout-mini{height:40px}.document-preview .layout-resume-columns{gap:10px;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}.document-preview .layout-resume-aside{padding:12px 6px}.document-preview .layout-resume-main{padding-top:12px}.document-preview .layout-quote-banner{grid-template-columns:1fr}.document-preview .layout-quote-highlight{text-align:left}.document-preview .layout-quote-end{grid-template-columns:1fr}.document-preview .layout-generic-shell{grid-template-columns:1fr}.document-preview .layout-generic-side{padding:10px}}
-@media print{.layout-gallery,.layout-hint{display:none!important}.document-preview .layout-resume-columns,.document-preview .layout-resume-footer-columns,.document-preview .layout-generic-shell{display:grid!important}.document-preview .layout-resume-aside,.document-preview .layout-resume-head,.document-preview .layout-quote-banner,.document-preview .layout-meta{print-color-adjust:exact;-webkit-print-color-adjust:exact}.document-preview .layout-academic-report .academic-cover{min-height:0!important;break-after:auto!important;margin-bottom:18px!important}.document-preview .layout-academic-monograph .academic-cover{min-height:255mm!important;break-after:page!important}.document-preview .layout-resume-columns{grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr)!important}.document-preview .layout-quote-end{break-inside:avoid}}
-
-
-/* Recibos: evite quebra de valores na lateral estreita. */
+@media print{
+  .layout-gallery,.layout-hint{display:none!important}
+  .document-preview .layout-resume-columns,.document-preview .layout-resume-footer-columns,.document-preview .layout-generic-shell{display:grid!important}
+  .document-preview .layout-resume-aside,.document-preview .layout-resume-head,.document-preview .layout-quote-banner,.document-preview .layout-meta{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .document-preview .layout-academic-report .academic-cover{min-height:0!important;break-after:auto!important;margin-bottom:18px!important}
+  .document-preview .layout-academic-monograph .academic-cover{min-height:255mm!important;break-after:page!important}
+  .document-preview .layout-resume-columns{grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr)!important}
+  .document-preview .layout-quote-end{break-inside:avoid}
+}
+/* Receipts: never split the paid amount across a narrow modern sidebar. */
 .document-preview[data-kind="recibo"] .layout-generic-shell{grid-template-columns:minmax(0,1fr)!important}
 .document-preview[data-kind="recibo"] .layout-generic-side{padding:14px 18px}
 .document-preview[data-kind="recibo"] .layout-generic-side>h1{white-space:nowrap;font-size:clamp(22px,4vw,28px);letter-spacing:-.035em}
+
+/* v0.7 — Personalização real dos documentos, inclui impressão e modelos. */
+.appearance-panel{border:1px solid #dceae2;background:#f7faf7;border-radius:13px;padding:13px 15px;margin:15px 0 18px}
+.appearance-title{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:9px}
+.appearance-title strong{font-size:13px}.appearance-title .btn{font-size:11px;padding:6px 8px}
+.appearance-palettes{display:flex;flex-wrap:wrap;gap:9px;margin:6px 0 14px}
+.palette-button{height:29px;width:29px;border:2px solid white;border-radius:100%;box-shadow:0 0 0 1px #d3dfd7}
+.palette-button[aria-pressed="true"]{box-shadow:0 0 0 3px #173b46,0 0 0 5px #fff}
+.palette-button:focus-visible{outline:3px solid #173b46;outline-offset:4px}
+.appearance-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) minmax(0,.95fr);gap:10px;align-items:end}
+.appearance-controls label{font-size:11px;font-weight:700;color:#36544d;display:grid;gap:5px;min-width:0}
+.appearance-controls select,.appearance-controls input[type="color"]{height:38px;width:100%;border:1px solid #cedcd5;border-radius:9px;background:#fff;padding:4px;color:#233d38}
+.appearance-controls input[type="color"]{cursor:pointer}
+.appearance-note{font-size:11px;color:#627871;line-height:1.5;margin:10px 0 0}
+@media(max-width:660px){.appearance-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.appearance-controls label:last-child{grid-column:1/-1}}
+@media print{.appearance-panel{display:none!important}}
+/* Custom accent applies to all 3 layout organizations and to exported PDF. */
+.document-preview{font-family:var(--custom-font,Arial,Helvetica,sans-serif)!important}
+.document-preview p,.document-preview li,.document-preview td,.document-preview .layout-section p{font-size:var(--custom-size,12px)!important}
+.document-preview h1,.document-preview h2,.document-preview h3,.document-preview .doc-tag,.document-preview .layout-eyebrow,.document-preview .layout-resume-editorial .layout-eyebrow,.document-preview .layout-quote-highlight{color:var(--custom-accent,#14785f)!important}
+.document-preview .layout-resume-editorial h1,.document-preview .layout-academic-monograph h1,.document-preview.theme-elegante h1,.document-preview.theme-elegante .layout-generic-editorial h2{font-family:var(--custom-font,Georgia,serif)!important}
+.document-preview.theme-moderno,.document-preview.theme-elegante{border-top-color:var(--custom-accent,#14785f)!important}
+.document-preview .doc-rule{background:var(--custom-accent,#14785f)!important}
+.document-preview .layout-resume-head,.document-preview .layout-quote-banner,.document-preview .layout-resume-aside,.document-preview .layout-generic-side,.document-preview .layout-academic-report .academic-cover{background:var(--custom-pale,#e8f3eb)!important}
+.document-preview .layout-generic-head,.document-preview .layout-quote-formal-head,.document-preview .layout-resume-editorial,.document-preview .layout-academic-monograph .academic-cover,.document-preview .layout-resume-footer-columns{border-color:var(--custom-accent,#14785f)!important}
+.document-preview .layout-section h2{border-bottom-color:var(--custom-accent,#14785f)!important}
+.document-preview .layout-meta{background:var(--custom-pale,#e8f3eb)!important}
+.document-preview[data-textsize="grande"] h1{font-size:32px}
+.document-preview[data-textsize="compacto"] h1{font-size:24px}
+
+.document-preview .doc-total,.document-preview .doc-figure{color:var(--custom-accent,#14785f)!important}
+.document-preview th{background:var(--custom-pale,#e8f3eb)!important}
+#layout-gallery{--preview-accent:#14785f;--preview-pale:#e8f3eb}
+#layout-gallery .layout-mini i:first-child{background:var(--preview-accent)}
+#layout-gallery .layout-mini-moderno{border-top-color:var(--preview-accent)}
+#layout-gallery .layout-mini-moderno:before{background:var(--preview-pale)}
+#layout-gallery .layout-choice[aria-pressed="true"]{border-color:var(--preview-accent);background:var(--preview-pale)}
+.appearance-warning{font-size:11px;color:#9b401c;margin:8px 0 0}
