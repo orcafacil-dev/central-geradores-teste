@@ -56,3 +56,12 @@
 @media(max-width:660px){.privacy-page{padding:20px;margin:20px 0 40px}}
 
 .starter-bar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;background:#e9f2ed;border:1px solid #d6e5dc;border-radius:13px;padding:12px 15px;margin-bottom:18px}.starter-bar label{font-size:12px;font-weight:700;color:#2b5d53}.starter-bar select{background:#fff;border:1px solid #cbded4;border-radius:8px;padding:9px;max-width:100%;font:inherit;font-size:12px}.starter-bar small{font-size:10px;color:#54726a}.starter-bar .btn{padding:9px 12px}@media print{.starter-bar{display:none!important}}
+
+/* v0.5 — histórico local pesquisável, sem requisições externas */
+.library-search-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(180px,1fr);gap:12px;margin:14px 0 6px}
+.library-search-label{display:block;color:#315b53;font-size:12px;font-weight:700;line-height:1.6}
+.library-search-label input,.library-search-label select{display:block;margin-top:7px;width:100%;min-height:44px;border:1px solid #d4e6dc;background:white;border-radius:10px;padding:10px 12px;font-size:13px;color:#173f39}
+.library-search-label :is(input,select):focus-visible{outline:3px solid #8be1bc;outline-offset:1px}
+.library-summary{font-size:12px;color:#627c73;margin:2px 0 14px}
+@media(max-width:680px){.library-search-row{grid-template-columns:1fr}}
+@media print{.library-search-row,.library-summary{display:none!important}}
