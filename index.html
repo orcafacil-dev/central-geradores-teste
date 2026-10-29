@@ -14,16 +14,20 @@
   <link rel="stylesheet" href="assistant.css?v=1.2">
   <link rel="stylesheet" href="i18n.css?v=1.2">
   <link rel="stylesheet" href="layouts.css?v=1.3">
+  <link rel="stylesheet" href="choice-ui.css?v=1.4">
   <script src="i18n.js?v=1.2" defer></script>
   <script src="quality.js?v=0.9" defer></script>
   <script src="layouts.js?v=0.9" defer></script>
   <script src="workflows.js?v=0.9" defer></script>
   <script src="doc-export.js?v=0.9" defer></script>
-  <script src="app.js?v=1.3" defer></script>
+  <script src="backup-core.js?v=1.4" defer></script>
+  <script src="app.js?v=1.4" defer></script>
   <script src="choice-ui.js?v=1.3" defer></script>
   <script src="assistant.js?v=1.2" defer></script>
   <link rel="stylesheet" href="visual-clean.css?v=1.3">
+  <link rel="stylesheet" href="backup-ui.css?v=1.4">
   <script src="visual-clean.js?v=1.3" defer></script>
+  <script src="backup-i18n.js?v=1.4" defer></script>
 </head>
 <body>
 <a class="skip" href="#workspace">Ir para o editor</a>
@@ -117,7 +121,18 @@
 <div class="library-actions"><button id="export-data" type="button" class="btn btn-outline">↓ Fazer backup (.json)</button><button id="import-trigger" type="button" class="btn btn-outline">↑ Restaurar backup</button><button type="button" id="clear-profile" class="btn btn-quiet">Apagar perfil salvo</button><input type="file" id="import-data" accept=".json,application/json" hidden></div><div id="document-list" class="document-list"></div></section>
   <section class="why"><div><span class="why-icon">◎</span><h2>Simples de usar.<br>Feito para facilitar.</h2></div><div><h3>Sem conta para começar</h3><p>Você não precisa fornecer e-mail ou senha para usar os geradores.</p></div><div><h3>Controle dos seus dados</h3><p>Suas informações ficam neste navegador. Exporte backups quando precisar.</p></div><div><h3>Sem promessas falsas</h3><p>Não geramos fontes acadêmicas, comprovantes fiscais ou informações profissionais inventadas.</p></div></section>
 </main>
-<footer class="site-footer"><div class="footer-brand">✳ central.geradores <span>· versão 1.3 experimental</span></div><p>Ferramenta gratuita em desenvolvimento. Não substitui orientações jurídicas, fiscais ou acadêmicas. Não há sincronização entre aparelhos. <a href="privacidade.html">Privacidade e segurança</a></p></footer>
+<footer class="site-footer"><div class="footer-brand">✳ central.geradores <span>· versão 1.4 candidata</span></div><p>Ferramenta gratuita em desenvolvimento. Não substitui orientações jurídicas, fiscais ou acadêmicas. Não há sincronização entre aparelhos. <a href="privacidade.html">Privacidade e segurança</a></p></footer>
+<dialog id="cg-backup-dialog" class="cg-backup-dialog" aria-labelledby="cg-backup-title">
+  <div class="cg-backup-body"><h2 id="cg-backup-title">Restaurar backup</h2>
+    <p id="cg-backup-description">Revise as opções antes de importar documentos. Seus dados permanecem neste aparelho.</p>
+    <div class="cg-backup-facts" id="cg-backup-facts"></div>
+    <div class="cg-backup-choices">
+      <button type="button" id="cg-backup-merge" data-action="merge"><strong>Mesclar sem apagar</strong><small>Adicionar documentos do arquivo; preservar os atuais e não sobrescrever seus ajustes.</small></button>
+      <button type="button" id="cg-backup-replace" data-action="replace"><strong>Substituir todo o histórico</strong><small>Apaga os documentos atuais. Em backups completos, restaura também seus rascunhos e preferências.</small></button>
+    </div>
+    <button type="button" class="cg-backup-cancel" id="cg-backup-cancel">Cancelar</button>
+  </div>
+</dialog>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

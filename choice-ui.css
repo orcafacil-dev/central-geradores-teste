@@ -1,4 +1,4 @@
-/* Menus consistentes com a Central, sem as janelas nativas do sistema. */
+/* Seletor consistente na plataforma, em vez de menus nativos do sistema. */
 .cg-native-select{display:none!important}
 .cg-trigger{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:47px;margin-top:6px;padding:11px 14px;border:1px solid #d9e4df;border-radius:12px;background:#fff;color:#183b40;font:inherit;text-align:left;cursor:pointer;box-shadow:0 2px 8px #142f3806;transition:border-color .15s,box-shadow .15s}
 .cg-trigger:hover{border-color:#8ccdb4;background:#fafffc}.cg-trigger:focus-visible{outline:3px solid #9ddfc8;outline-offset:2px}
@@ -32,28 +32,14 @@
 .cg-color-actions .cg-color-apply{background:#087958;border-color:#087958;color:#fff}
 .cg-color-actions button:disabled{opacity:.5;cursor:not-allowed}
 @media(max-width:700px){
-body.cg-dialog-open{overflow:hidden}
-.cg-backdrop{background:#09212c80}
-.cg-menu{position:absolute!important;left:0!important;top:auto!important;bottom:0;width:100%!important;max-height:min(83dvh,720px)!important;border-radius:22px 22px 0 0;box-shadow:0 -14px 40px #0c263a36;padding-bottom:env(safe-area-inset-bottom,0px)}
-.cg-menu-header{padding:18px 20px}.cg-menu-header strong{font-size:17px}
-.cg-options{padding:10px 12px 14px}.cg-option{font-size:16px;min-height:54px}
-.cg-color-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
-.cg-color-choice{min-height:69px}.cg-color-choice small{font-size:9px}
-.cg-trigger{min-height:50px}
+ body.cg-dialog-open{overflow:hidden}
+ .cg-backdrop{background:#09212c80}
+ .cg-menu{position:absolute!important;left:0!important;top:auto!important;bottom:0;width:100%!important;max-height:min(83dvh,720px)!important;border-radius:22px 22px 0 0;box-shadow:0 -14px 40px #0c263a36;padding-bottom:env(safe-area-inset-bottom,0px)}
+ .cg-menu-header{padding:18px 20px}.cg-menu-header strong{font-size:17px}
+ .cg-options{padding:10px 12px 14px}.cg-option{font-size:16px;min-height:54px}
+ .cg-color-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+ .cg-color-choice{min-height:69px}.cg-color-choice small{font-size:9px}
+ .cg-trigger{min-height:50px}
 }
 @media(prefers-reduced-motion:reduce){.cg-trigger{transition:none}}
 @media print{.cg-layer,.cg-trigger{display:none!important}}
-/* Aparência própria para upload. A escolha do arquivo continua sob controle seguro do sistema. */
-.cg-native-file{display:none!important}
-.cg-file-trigger{display:flex;align-items:center;gap:13px;width:100%;min-height:58px;margin-top:8px;background:#f8fcfa;border:1.5px dashed #accfc1;color:#214b46;border-radius:13px;padding:11px 14px;cursor:pointer;text-align:left;font:inherit}
-.cg-file-trigger:hover{background:#f0faf5;border-color:#23805f}
-.cg-file-trigger:focus-visible{outline:3px solid #9ddfc8;outline-offset:2px}
-.cg-file-icon{width:34px;height:34px;border-radius:10px;background:#dbf1e5;color:#086e52;display:grid;place-items:center;font-size:22px;font-weight:700;flex:none}
-.cg-file-details{display:grid;gap:2px;min-width:0}
-.cg-file-details strong{font-size:13px;font-weight:750}
-.cg-file-details small{font-size:11px;color:#69827d;overflow-wrap:anywhere}
-@media print{.cg-file-trigger{display:none!important}}
-
-/* Conter rótulos longos nos grids mais estreitos do celular. */
-.appearance-controls .cg-trigger,.appearance-controls label{min-width:0;max-width:100%}
-.cg-trigger{min-width:0;max-width:100%;box-sizing:border-box}

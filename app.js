@@ -23,7 +23,7 @@
   const MAX_FIELD = 15000;
   const money = n => new Intl.NumberFormat(window.CentralI18n?.locale()==='en'?'en-US':window.CentralI18n?.locale()||'pt-BR', {style:'currency',currency:'BRL'}).format(n);
   const formatDate = x => /^\d{4}-\d{2}-\d{2}$/.test(x || '') ? new Intl.DateTimeFormat(window.CentralI18n?.locale()==='en'?'en-US':window.CentralI18n?.locale()||'pt-BR',{timeZone:'UTC'}).format(new Date(x+'T12:00:00Z')) : (x || '—');
-  const today = () => new Date().toISOString().slice(0,10);
+  const today = () => window.CentralBackup?.dateLocal()||new Date().toLocaleDateString('en-CA');
   const afterDays = days => {const d = new Date(); d.setDate(d.getDate()+days);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
   const uid = () => (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const parseDecimal = raw => {const s=String(raw ?? '').trim().replace(/\s/g,'');if(!s)return 0;const normalized=s.includes(',')?s.replace(/\./g,'').replace(',','.'):s;const n=Number(normalized);return Number.isFinite(n)&&n>=0&&n<=1e9?n:NaN};
@@ -304,8 +304,81 @@
       const next=window.DocumentFlows?.nextFor(entry.type);
       if(next){const convert=txt('button','Continuar: '+toolMap[next].name,'next-doc-btn');convert.type='button';convert.setAttribute('aria-label','Criar '+toolMap[next].name+' a partir de '+docTitle(entry));convert.onclick=()=>continueFrom(entry.type,entry.data);actions.append(convert)}
       actions.append(del);append(card,info,actions);list.append(card)}}
-  function backup(){const blob=new Blob([JSON.stringify({format:'central-geradores-backup',version:1,exportedAt:new Date().toISOString(),documents:docs},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='central-geradores-backup-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);toast('Backup gerado. Guarde o arquivo em local seguro.')}
-  async function importBackup(file){if(!file)return;try{if(file.size>5e6)throw Error('arquivo maior que 5 MB');const parsed=JSON.parse(await file.text());if(parsed.format!=='central-geradores-backup'||parsed.version!==1||!Array.isArray(parsed.documents)||parsed.documents.length>MAX_DOCUMENTS)throw Error('formato incompatível');if(!parsed.documents.every(x=>x&&typeof x.id==='string'&&x.id.length<=90&&typeof x.type==='string'&&Object.prototype.hasOwnProperty.call(toolMap,x.type)&&x.data&&typeof x.data==='object')||new Set(parsed.documents.map(x=>x.id)).size!==parsed.documents.length)throw Error('dados inválidos ou identificadores repetidos');const clean=parsed.documents.map(x=>({id:x.id.slice(0,90),type:x.type,data:sanitizeData(toolMap[x.type],x.data),updatedAt:typeof x.updatedAt==='string'?x.updatedAt:today()}));if(!confirm(`Restaurar ${clean.length} documento(s)? O histórico atual será substituído. Faça backup dele primeiro.`))return;if(persist(STORAGE,clean)){docs=clean;refreshCount();drawLibrary();toast('Backup restaurado com sucesso.')}}catch(e){toast('Falha ao restaurar: '+e.message)}finally{$('import-data').value=''}}
+  const backupSettings=()=>({drafts,profile:stored(PROFILE,{}),brand:stored(BRAND_STORAGE,{}),favorites,language:window.CentralI18n?.locale()||'pt'});
+  function backup(){
+    const b=backupSettings(),payload=window.CentralBackup.snapshot(docs,b.drafts,b.profile,b.brand,b.favorites,b.language);
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='central-geradores-backup-completo-'+today()+'.json';a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+    toast('Backup completo baixado: inclui documentos, rascunhos, perfil e identidade visual. Guarde em local privado.');
+  }
+  function safeDrafts(input){
+    const next={};if(!input||typeof input!=='object'||Array.isArray(input))return next;
+    for(const t of tools){const raw=input[t.id];if(raw&&raw.data&&typeof raw.data==='object'&&!Array.isArray(raw.data))next[t.id]={id:typeof raw.id==='string'?raw.id.slice(0,90):null,data:sanitizeData(t,raw.data)}}
+    return next;
+  }
+  function safeProfile(input){
+    const next={};if(!input||typeof input!=='object'||Array.isArray(input))return next;
+    for(const k of ['person','city','phone','email','business'])if(typeof input[k]==='string')next[k]=input[k].slice(0,200);
+    return next;
+  }
+  function atomicStorage(entries){
+    const previous=new Map();
+    try{
+      for(const [key] of entries)previous.set(key,localStorage.getItem(key));
+      for(const [key,value] of entries)localStorage.setItem(key,JSON.stringify(value));
+      return true;
+    }catch(error){
+      for(const [key,value] of previous)try{value===null?localStorage.removeItem(key):localStorage.setItem(key,value)}catch{}
+      toast('Não foi possível restaurar: armazenamento insuficiente ou indisponível. Seus dados antigos foram preservados quando possível.');
+      return false;
+    }
+  }
+  let pendingRestore=null;
+  const closeBackup=()=>{const d=$('cg-backup-dialog');if(d?.open)d.close();pendingRestore=null};
+  function restoreSelection(mode){
+    if(!pendingRestore)return;
+    const {parsed,incoming}=pendingRestore;
+    const isReplace=mode==='replace';
+    if(isReplace&&!confirm('CONFIRMAR SUBSTITUIÇÃO: os documentos atuais serão apagados e trocados pelo conteúdo deste backup. Deseja continuar?'))return;
+    try{
+      let nextDocs,added=0;
+      if(isReplace){nextDocs=incoming;added=incoming.length}
+      else{const result=window.CentralBackup.merge(docs,incoming,uid);nextDocs=result.documents;added=result.added}
+      const entries=[[STORAGE,nextDocs]];
+      const hasSettings=parsed.version===2&&isReplace;
+      let nextDrafts=drafts,nextFavorites=favorites;
+      if(hasSettings){
+        nextDrafts=safeDrafts(parsed.drafts);
+        nextFavorites=Array.isArray(parsed.favorites)?[...new Set(parsed.favorites.filter(t=>typeof t==='string'&&toolMap[t]))].slice(0,MAX_DOCUMENTS):[];
+        entries.push([DRAFTS,nextDrafts],[PROFILE,safeProfile(parsed.profile)],[BRAND_STORAGE,sanitizeBrand(parsed.brand)],[FAVORITES,nextFavorites]);
+      }else if(isReplace){nextDrafts={};entries.push([DRAFTS,nextDrafts]);}
+      if(!atomicStorage(entries))return;
+      docs=nextDocs;drafts=nextDrafts;favorites=nextFavorites;
+      if(isReplace){current=null;dirty=false;$('workspace').hidden=true;window.location.hash='inicio'}
+      if(hasSettings&&typeof parsed.language==='string'&&window.CentralI18n?.available?.includes(parsed.language))window.CentralI18n.setLocale(parsed.language);
+      refreshCount();drawLibrary();displayTools($('tool-search').value);displayCategories();closeBackup();
+      toast(isReplace?`${added} documento(s) restaurado(s).`:`${added} novo(s) documento(s) adicionado(s). Documentos existentes preservados.`);
+    }catch(error){toast('Não foi possível mesclar: '+error.message)}
+  }
+  async function importBackup(file){
+    if(!file)return;
+    try{
+      if(file.size>20e6)throw Error('Arquivo maior que 20 MB.');
+      const parsed=JSON.parse(await file.text());
+      const types=new Set(tools.map(t=>t.id));window.CentralBackup.inspect(parsed,types);
+      const incoming=parsed.documents.map(x=>({id:x.id,type:x.type,data:sanitizeData(toolMap[x.type],x.data),updatedAt:typeof x.updatedAt==='string'?x.updatedAt:today()}));
+      pendingRestore={parsed,incoming};
+      const f=$('cg-backup-facts');f.replaceChildren();
+      for(const text of [window.CentralBackup.t('inFile',incoming.length),window.CentralBackup.t('onDevice',docs.length),window.CentralBackup.t(parsed.version===2?'full':'legacy')])f.append(txt('span',text));
+      $('cg-backup-dialog').showModal();
+    }catch(error){toast('Falha ao ler backup: '+error.message)}
+    finally{$('import-data').value=''}
+  }
+  $('cg-backup-merge').onclick=()=>restoreSelection('merge');
+  $('cg-backup-replace').onclick=()=>restoreSelection('replace');
+  $('cg-backup-cancel').onclick=closeBackup;
+  $('cg-backup-dialog').addEventListener('close',()=>{pendingRestore=null});
   function plainText(){return $('document-preview').innerText||$('document-preview').textContent||''}
   async function copyText(){if(!current||!valid())return;try{if(!navigator.clipboard?.writeText)throw Error('Clipboard indisponível');await navigator.clipboard.writeText(plainText());toast('Texto copiado!')}catch{toast('Cópia indisponível neste navegador. Tente baixar o TXT.')}}
   function exportText(){if(!current||!valid())return;const data=plainText();const blob=new Blob([data],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='gerador-'+current.type+'-'+today()+'.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);toast('Arquivo de texto baixado.')}
@@ -359,6 +432,6 @@
   $('tool-search').addEventListener('input',e=>displayTools(e.target.value));$('back-tools').onclick=()=>{$('explorar').scrollIntoView({behavior:'smooth'});window.location.hash='explorar'};$('go-library').onclick=showLibrary;$('library-close').onclick=()=>$('library').hidden=true;$('new-document').onclick=fresh;$('duplicate-document').onclick=duplicate;$('save-document').onclick=save;$('save-document-bottom').onclick=save;$('print-document').onclick=printDoc;$('export-data').onclick=backup;$('import-trigger').onclick=()=>$('import-data').click();$('import-data').addEventListener('change',e=>importBackup(e.target.files[0]));
   document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&current){e.preventDefault();save()}});
   window.addEventListener('storage',e=>{if(e.key===STORAGE)toast('Documentos alterados em outra aba. Recarregue esta página antes de salvar.')});
-  if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').then(reg=>{reg.addEventListener('updatefound',()=>toast('Uma nova versão foi encontrada. Recarregue a página para atualizar.'))}).catch(()=>{}));
+  if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').then(reg=>{reg.addEventListener('updatefound',()=>{const worker=reg.installing;if(!navigator.serviceWorker.controller||!worker)return;worker.addEventListener('statechange',()=>{if(worker.state==='installed')toast('Uma nova versão está disponível. Salve seu documento e recarregue para atualizar.')})})}).catch(()=>{}));
   restoreState();refreshCount();displayTools();openHashTool();if(window.location.hash==='#workspace'&&!current)openTool('curriculo');
 })();
