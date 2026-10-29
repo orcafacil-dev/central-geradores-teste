@@ -14,11 +14,11 @@
     const ul=$el('ul','doc-list');String(value).split('\n').map(v=>v.trim()).filter(Boolean).slice(0,60).forEach(v=>ul.append($el('li','',v)));div.append(ul)
   }else div.append($el('p','',value));return div};
   const pack=(parent,...children)=>add(parent,...children);
-  const formatDate=v=>/^\d{4}-\d{2}-\d{2}$/.test(v||'')?v.split('-').reverse().join('/'):(v||'—');
+  const formatDate=v=>/^\d{4}-\d{2}-\d{2}$/.test(v||'')?new Intl.DateTimeFormat(window.CentralI18n?.locale()==='en'?'en-US':window.CentralI18n?.locale()||'pt-BR',{timeZone:'UTC'}).format(new Date(v+'T12:00:00Z')):(v||'—');
   const meta=(entries,cls='layout-meta')=>{const wrap=$el('div',cls);for(const [label,value] of entries){const item=$el('div','layout-meta-item');add(item,$el('span','layout-meta-label',label),$el('strong','',value||'—'));wrap.append(item)}return wrap};
   const heading=(kicker,title,description,klass='')=>{const h=$el('header','layout-head '+klass);add(h,$el('span','layout-eyebrow',kicker),$el('h1','',title));text(h,'p',description,'layout-subtitle');return h};
   const foot=(v)=>$el('p','doc-warning',v);
-  const money=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(n)||0);
+  const money=n=>new Intl.NumberFormat(window.CentralI18n?.locale()==='en'?'en-US':window.CentralI18n?.locale()||'pt-BR',{style:'currency',currency:'BRL'}).format(Number(n)||0);
   const toNumber=s=>{const v=String(s??'').trim().replace(/\s/g,'');if(!v)return 0;const n=Number(v.includes(',')?v.replace(/\./g,'').replace(',','.'):v);return Number.isFinite(n)&&n>=0?n:0};
 
   function resume(root,theme,d){

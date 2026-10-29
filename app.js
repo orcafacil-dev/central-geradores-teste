@@ -21,8 +21,8 @@
 
   const MAX_DOCUMENTS = 250;
   const MAX_FIELD = 15000;
-  const money = n => new Intl.NumberFormat('pt-BR', {style:'currency',currency:'BRL'}).format(n);
-  const formatDate = x => /^\d{4}-\d{2}-\d{2}$/.test(x || '') ? x.split('-').reverse().join('/') : (x || '—');
+  const money = n => new Intl.NumberFormat(window.CentralI18n?.locale()==='en'?'en-US':window.CentralI18n?.locale()||'pt-BR', {style:'currency',currency:'BRL'}).format(n);
+  const formatDate = x => /^\d{4}-\d{2}-\d{2}$/.test(x || '') ? new Intl.DateTimeFormat(window.CentralI18n?.locale()==='en'?'en-US':window.CentralI18n?.locale()||'pt-BR',{timeZone:'UTC'}).format(new Date(x+'T12:00:00Z')) : (x || '—');
   const today = () => new Date().toISOString().slice(0,10);
   const afterDays = days => {const d = new Date(); d.setDate(d.getDate()+days);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
   const uid = () => (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;

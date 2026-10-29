@@ -1,0 +1,11 @@
+/* Compact custom language picker; avoids native dropdown overlays on Android. */
+.language-picker{position:relative;z-index:50;flex-shrink:0}
+.language-picker summary{cursor:pointer;list-style:none;padding:9px 12px;border:1px solid #d6e5dd;border-radius:12px;color:#1a5f4f;background:#fff;font-size:12px;font-weight:700;min-width:110px;text-align:center}
+.language-picker summary::-webkit-details-marker{display:none}
+.language-picker summary:after{content:'⌄';margin-left:7px}
+.language-picker[open] summary:after{content:'⌃'}
+.language-menu{position:absolute;right:0;top:calc(100% + 7px);background:#fff;border:1px solid #d4e2da;box-shadow:0 15px 40px #0d3c3428;border-radius:13px;padding:6px;width:180px;display:grid;gap:2px;z-index:80}
+.language-menu button{border:0;background:transparent;color:#143a31;text-align:left;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.language-menu button:hover,.language-menu button[aria-pressed=true]{background:#e0f3e8;color:#087254;font-weight:700}
+@media(max-width:600px){.site-header{height:auto;min-height:80px;flex-wrap:wrap;padding:12px 16px}.header-actions{gap:8px;flex-wrap:wrap}.language-picker summary{min-width:90px;padding:8px;font-size:11px}.language-menu{right:auto;left:-40px}.header-actions .tag{display:none}}
+@media print{.language-picker{display:none}}

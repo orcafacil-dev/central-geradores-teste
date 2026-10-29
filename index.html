@@ -11,15 +11,17 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png" type="image/png">
   <link rel="stylesheet" href="style.css?v=1.1">
-  <link rel="stylesheet" href="assistant.css?v=1.1">
+  <link rel="stylesheet" href="assistant.css?v=1.2">
+  <link rel="stylesheet" href="i18n.css?v=1.2">
   <link rel="stylesheet" href="layouts.css?v=0.9">
+  <script src="i18n.js?v=1.2" defer></script>
   <script src="quality.js?v=0.9" defer></script>
   <script src="layouts.js?v=0.9" defer></script>
   <script src="workflows.js?v=0.9" defer></script>
   <script src="doc-export.js?v=0.9" defer></script>
   <script src="app.js?v=0.9" defer></script>
   <script src="choice-ui.js?v=1.0" defer></script>
-  <script src="assistant.js?v=1.1" defer></script>
+  <script src="assistant.js?v=1.2" defer></script>
 </head>
 <body>
 <a class="skip" href="#workspace">Ir para o editor</a>
@@ -28,7 +30,7 @@
     <span class="brand-mark" aria-hidden="true">✳</span>
     <span><strong>central<span class="brand-light">.geradores</span></strong><small>Documentos prontos para a vida real</small></span>
   </a>
-  <div class="header-actions"><span class="tag">GRÁTIS · SEM CADASTRO</span><button id="install-app" class="btn btn-outline" type="button" hidden>Instalar app</button><button id="go-library" class="btn btn-quiet" type="button">Meus documentos <span id="saved-count" class="count">0</span></button></div>
+  <div class="header-actions"><details id="language-picker" class="language-picker"><summary id="language-current" aria-label="Language / Idioma">🌐 Português</summary><div class="language-menu" id="language-options" role="group" aria-label="Choose language"></div></details><span class="tag">GRÁTIS · SEM CADASTRO</span><button id="install-app" class="btn btn-outline" type="button" hidden>Instalar app</button><button id="go-library" class="btn btn-quiet" type="button">Meus documentos <span id="saved-count" class="count">0</span></button></div>
 </header>
 <main>
   <nav class="product-modes" aria-label="Escolher área da Central">
@@ -53,8 +55,8 @@
         <label class="ai-field"><span>Conte as informações e instruções</span><textarea id="ai-request" maxlength="5000" rows="8" placeholder="Ex.: Monte um currículo moderno em azul. Nome: Ana Ribeiro. Cargo: Assistente administrativo. Formação: Ensino médio completo..."></textarea></label>
         <button type="button" id="ai-example" class="ai-example">▤ Preencher com exemplo fictício</button>
         <label id="ai-actual-payment" class="ai-check" hidden><input id="ai-paid-check" type="checkbox"> <span>Confirmo que o pagamento informado realmente ocorreu. Não desejo gerar um recibo de pagamento inexistente.</span></label>
-        <p id="ai-mode-status" class="ai-mode-status" role="status">Verificando disponibilidade de IA no navegador...</p>
-        <div class="ai-actions"><button type="button" id="ai-generate" class="btn btn-primary">✦ Preparar com IA (se disponível)</button><button type="button" id="ai-guided" class="btn btn-outline">Preparar sem IA</button></div>
+        <p id="ai-mode-status" class="ai-mode-status" role="status">Verificando recursos do navegador...</p>
+        <div class="ai-actions"><button type="button" id="ai-generate" class="btn btn-primary">✦ Criar documento</button></div>
         <p id="ai-status" class="ai-status" role="status" aria-live="polite"></p>
       </div>
       <aside class="ai-explainer" aria-label="Como funciona">
@@ -62,7 +64,7 @@
         <div class="ai-explainer-point"><strong>1. Organize</strong><p>Dados explícitos são reconhecidos e colocados nos campos corretos. Sem dados suficientes, o campo continua vazio.</p></div>
         <div class="ai-explainer-point"><strong>2. Revise</strong><p>Você entra no editor normal da Central e ajusta informações, estilo, cabeçalho e logotipo.</p></div>
         <div class="ai-explainer-point"><strong>3. Exporte</strong><p>Escolha Word editável, PDF pela impressão, HTML ou TXT. Os dados continuam no navegador.</p></div>
-        <p class="ai-integrity">A IA generativa só funciona em navegadores compatíveis com um modelo local. No Android, use a preparação guiada, que não inventa conteúdo. Não criamos pagamentos, currículos ou referências fictícias automaticamente.</p>
+        <p class="ai-integrity">A IA generativa é opcional e depende de um modelo integrado ao navegador. Nos dispositivos sem IA local, seus dados são organizados sem inventar conteúdo. Não criamos pagamentos, currículos ou referências fictícias automaticamente.</p>
         <div class="ai-result" aria-live="polite"><strong>Último resultado</strong><p id="ai-summary">Nenhum documento preparado nesta sessão.</p><small id="ai-missing"></small></div>
       </aside>
     </div>
@@ -107,7 +109,7 @@
 <div class="library-actions"><button id="export-data" type="button" class="btn btn-outline">↓ Fazer backup (.json)</button><button id="import-trigger" type="button" class="btn btn-outline">↑ Restaurar backup</button><button type="button" id="clear-profile" class="btn btn-quiet">Apagar perfil salvo</button><input type="file" id="import-data" accept=".json,application/json" hidden></div><div id="document-list" class="document-list"></div></section>
   <section class="why"><div><span class="why-icon">◎</span><h2>Simples de usar.<br>Feito para facilitar.</h2></div><div><h3>Sem conta para começar</h3><p>Você não precisa fornecer e-mail ou senha para usar os geradores.</p></div><div><h3>Controle dos seus dados</h3><p>Suas informações ficam neste navegador. Exporte backups quando precisar.</p></div><div><h3>Sem promessas falsas</h3><p>Não geramos fontes acadêmicas, comprovantes fiscais ou informações profissionais inventadas.</p></div></section>
 </main>
-<footer class="site-footer"><div class="footer-brand">✳ central.geradores <span>· versão 1.0 experimental</span></div><p>Ferramenta gratuita em desenvolvimento. Não substitui orientações jurídicas, fiscais ou acadêmicas. Não há sincronização entre aparelhos. <a href="privacidade.html">Privacidade e segurança</a></p></footer>
+<footer class="site-footer"><div class="footer-brand">✳ central.geradores <span>· versão 1.2 experimental</span></div><p>Ferramenta gratuita em desenvolvimento. Não substitui orientações jurídicas, fiscais ou acadêmicas. Não há sincronização entre aparelhos. <a href="privacidade.html">Privacidade e segurança</a></p></footer>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
