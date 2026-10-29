@@ -1,0 +1,15 @@
+/* Importação de currículo: processo separado, sempre opt-in. */
+.resume-import-entry{margin:0 0 18px;padding:14px 16px;border:1px solid #d7e5df;background:#f6faf8;border-radius:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.resume-import-entry strong{display:block;font-size:14px;color:#143c35}.resume-import-entry span{display:block;font-size:12px;color:#647b74;margin-top:4px}
+.resume-import-entry .btn{white-space:normal}
+#resume-import-dialog{border:0;border-radius:22px;padding:0;max-width:min(92vw,620px);width:100%;color:#24343b;box-shadow:0 25px 90px #092b2b60}
+#resume-import-dialog::backdrop{background:#0d292baf;backdrop-filter:blur(2px)}
+.resume-import-shell{padding:24px;display:grid;gap:15px;max-height:85dvh;overflow-y:auto}
+.resume-import-shell h2{font-size:24px;line-height:1.2;margin:0}.resume-import-shell p{line-height:1.5;color:#586c72;margin:0;font-size:13px}
+.resume-import-shell label{display:grid;gap:7px;font-size:13px;font-weight:600}
+.resume-import-shell textarea{width:100%;min-height:140px;max-height:30vh;padding:12px;border:1px solid #d8e5e0;border-radius:12px;resize:vertical;background:#fff;color:#19353c}
+.resume-import-shell input[type=file]{padding:12px;border:1px dashed #a3c1b5;background:#f7faf8;border-radius:10px;max-width:100%;font-weight:400}
+.resume-import-feedback{padding:11px 13px;border-radius:10px;background:#eff6f2;color:#204f43!important}
+.resume-import-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.resume-import-actions button{min-height:43px}
+@media(max-width:600px){#resume-import-dialog{width:calc(100% - 24px);margin:auto;border-radius:20px}.resume-import-shell{padding:18px}.resume-import-actions button{flex:1}}
