@@ -1,17 +1,16 @@
-# Central de Geradores — demonstração v0.9
+# Central de Geradores — demonstração pública v1.1
 
-Site gratuito e experimental: https://orcafacil-dev.github.io/central-geradores-teste/
+Teste: https://orcafacil-dev.github.io/central-geradores-teste/
 
-São 15 geradores para currículos, orçamentos, recibos, cartas, estudos e outros documentos. Sem cadastro. Funciona no navegador, com modelos, histórico local, Word editável, HTML, TXT e PDF por impressão.
-
-## Novidades v0.9
-- Orçamentos com unidade, desconto em percentual ou reais, subtotal e total; valor líquido reaproveitado na ordem de serviço
-- Recibos com valor por extenso e CPF/CNPJ numéricos opcionais, conferidos matematicamente (não há consulta à Receita ou validação de titularidade; CNPJ alfanumérico ainda não suportado)
-- Orientação de preenchimento em currículos e revisão de informações antes da emissão
+## O que há nesta versão
+- 15 geradores de documentos com PDF pela impressão e Word editável.
+- 3 modelos de organização, paletas de cores, tipografia, identidade visual e histórico local.
+- **Nova aba Criar com IA:** selecionar categoria, tipo de documento, modelo e cores; fornecer suas informações em linguagem natural; abrir o rascunho no editor normal e exportar.
+- **IA generativa local** usa a API nativa do navegador somente quando disponível e compatível com português. **Não é suportada no Chrome Android neste momento.**
+- **Preparar sem IA:** funciona no celular e organiza apenas dados explicitamente fornecidos pelo usuário, sem gerar conteúdo por um modelo de linguagem.
+- Não há API paga, login, upload de documentos ao servidor, cobrança nem telemetria própria.
 
 ## Privacidade e limites
-Dados, documentos e logotipos ficam no armazenamento do seu navegador, sujeitos a perda ou acesso por outras pessoas com acesso ao mesmo dispositivo. Backups JSON podem conter dados pessoais: guarde-os em local privado. O serviço de hospedagem pode registrar dados técnicos, como IP. Evite usar dados reais durante a fase experimental.
+Informações e documentos ficam no armazenamento local deste navegador e podem se perder. Guarde backups JSON em local privado. A IA local pode exigir que o navegador baixe seu modelo; a disponibilidade depende do aparelho e do navegador. Todos os documentos, especialmente recibos, valores, currículos e trabalhos acadêmicos, exigem revisão. A ferramenta não valida fatos ou fontes nem substitui aconselhamento profissional.
 
-Recibo não substitui nota fiscal ou assinatura, trabalho acadêmico não garante conformidade ABNT, e os modelos não substituem revisão profissional.
-
-Esta é uma demonstração sem cobrança, publicidade, telemetria ou IA generativa. A página permanece com noindex durante os testes. O repositório privado de desenvolvimento não está incluído nesta demonstração.
+O repositório público é uma demonstração isolada; o projeto de desenvolvimento principal permanece privado. Esta versão segue com meta `noindex` até validação adicional. Consulte [Privacidade](privacidade.html).
