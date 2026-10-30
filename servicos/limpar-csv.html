@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Limpe arquivos CSV sem enviar dados a servidores. Remova linhas vazias, padronize espaços e elimine duplicatas. Ferramenta gratuita da OrçaFácil.">
+<meta name="robots" content="index,follow">
+<title>Limpar CSV gratuito | OrçaFácil Automações</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#16223e;background:#f6f8fd}
+*{box-sizing:border-box}body{margin:0;line-height:1.55}a{color:#1554c0}a:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid #e99e25;outline-offset:3px}
+header{background:#10213f;color:white}.shell{max-width:990px;padding:0 20px;margin:auto}
+nav{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 0}nav a{color:#e5efff;text-decoration:none;font-weight:700}
+.hero{background:linear-gradient(125deg,#10213f,#24477e);color:white;padding:54px 0 48px}.hero h1{font-size:clamp(2rem,5vw,3.5rem);letter-spacing:-.045em;line-height:1.12;margin:0 0 16px}.hero p{max-width:680px;color:#dce6f8;margin:0}
+main{padding:40px 0 60px}.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}.panel{background:white;border:1px solid #d6e0f0;border-radius:17px;padding:22px;box-shadow:0 9px 33px #16233d0b}.panel h2{margin:0 0 14px;font-size:1.25rem}
+.field{display:block;margin:13px 0 16px;font-weight:600}.field input[type=file]{display:block;width:100%;margin-top:9px;border:1px dashed #8299c0;border-radius:9px;padding:15px;background:#f3f7ff}
+.field input[type=checkbox]{width:18px;height:18px;vertical-align:middle;margin-right:8px}
+button,.button{border:0;background:#1657c2;color:white;padding:13px 17px;border-radius:10px;cursor:pointer;font:inherit;font-weight:700;display:inline-block;text-decoration:none}
+button.secondary,.button.secondary{background:#eaf1ff;color:#1b437f}button:disabled{opacity:.48;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}.hint,.small{color:#60708b;font-size:.9rem} .notice{background:#e7f4ee;border-left:4px solid #197c57;padding:11px 15px;border-radius:6px;color:#185d43}
+#status{min-height:22px;font-weight:600}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}.metric{border:1px solid #dbe3f0;border-radius:11px;padding:14px;text-align:center}.metric b{display:block;font-size:1.55rem}.metric span{font-size:.82rem;color:#62708a}
+.tablewrap{overflow-x:auto;margin-top:14px;border:1px solid #dae2ef;border-radius:10px}table{border-collapse:collapse;width:100%;font-size:.88rem}td,th{padding:9px 11px;text-align:left;border-bottom:1px solid #e4eaf3;white-space:nowrap;max-width:270px;overflow:hidden;text-overflow:ellipsis}th{background:#eaf1ff}
+.cta{margin:25px 0 0;background:#132948;color:#e9f1ff;padding:24px;border-radius:15px}.cta a{background:#9ac6ff;color:#172d55}.cta p{margin-top:5px}footer{background:#10213f;color:#d7e5fa;font-size:.85rem;padding:22px 0}
+@media(max-width:720px){.cols{grid-template-columns:1fr}.summary{grid-template-columns:1fr 1fr}.hero{padding:38px 0}}
+</style>
+</head>
+<body>
+<header><div class="shell"><nav><a href="../">← OrçaFácil Automações</a><a href="../#request">Pedir serviço</a></nav></div></header>
+<section class="hero"><div class="shell"><h1>Limpe seu CSV no navegador</h1><p>Remova linhas vazias e duplicatas, padronize espaços e baixe um arquivo organizado. Gratuito, sem cadastro e sem enviar dados para nossos servidores.</p></div></section>
+<main class="shell">
+<div class="cols">
+<section class="panel" aria-label="Configurar limpeza">
+<h2>1. Escolha seu arquivo</h2>
+<label class="field" for="file">Arquivo .csv ou .txt, até 2 MB<input type="file" id="file" accept=".csv,.txt,text/csv,text/plain"></label>
+<p class="small">Seu arquivo é processado somente neste navegador. Evite dados sensíveis em computadores compartilhados. O arquivo original não é alterado.</p>
+<label class="field"><input id="trim" type="checkbox" checked> Remover espaços extras nas células</label>
+<label class="field"><input id="empty" type="checkbox" checked> Remover linhas completamente vazias</label>
+<label class="field"><input id="duplicates" type="checkbox" checked> Remover linhas idênticas (mantendo a primeira)</label>
+<label class="field"><input id="header" type="checkbox" checked> Primeira linha é cabeçalho</label>
+<p class="small">A exportação neutraliza células que possam ser interpretadas como fórmulas em planilhas. Confira sempre os resultados, especialmente em arquivos financeiros.</p>
+<div class="actions"><button id="clean" disabled>Limpar arquivo</button><button id="example" class="secondary" type="button">Usar exemplo</button></div>
+<p id="status" role="status" aria-live="polite"></p>
+</section>
+<section class="panel" aria-label="Visualizar resultados">
+<h2>2. Confira o resultado</h2>
+<p class="hint">Prévia das primeiras 8 linhas. Você pode repetir a limpeza com outras opções.</p>
+<div class="summary" aria-live="polite"><div class="metric"><b id="original">0</b><span>Linhas originais</span></div><div class="metric"><b id="result">0</b><span>Linhas finais</span></div><div class="metric"><b id="removed">0</b><span>Removidas</span></div></div>
+<div class="tablewrap"><table id="preview"><caption class="small">Prévia da limpeza</caption><thead></thead><tbody><tr><td>Escolha um arquivo para começar.</td></tr></tbody></table></div>
+<div class="actions"><button id="download" disabled>Baixar CSV limpo</button></div>
+</section>
+</div>
+<div class="notice" style="margin-top:20px"><strong>Privacidade:</strong> a ferramenta não usa servidor, API externa, rastreadores ou armazenamento permanente. Todos os dados são descartados ao recarregar a página. Em arquivos grandes ou complexos, teste o resultado antes de usar profissionalmente.</div>
+<section class="cta"><h2>Precisa de uma limpeza mais avançada?</h2><p>Organização de colunas, fórmulas, relatórios e arquivos com formatos incomuns podem precisar de um serviço personalizado. Conte o problema e receba uma análise de escopo, sem compromisso.</p><a class="button" id="quote" href="../#request">Solicitar orçamento personalizado</a></section>
+</main>
+<footer><div class="shell">OrçaFácil Automações · Ferramenta demonstrativa gratuita · Sem cobrança automática</div></footer>
+<script>
+(function(){
+"use strict";
+var rawText="",name="dados",outRows=[],delimiter=",";
+var file=document.getElementById("file"),clean=document.getElementById("clean"),download=document.getElementById("download"),status=document.getElementById("status");
+function say(message,problem){status.textContent=message;status.style.color=problem?"#ad2538":"#197c57";}
+function guess(text){
+ var line=text.split(/\r?\n/,1)[0]||"",counts={",":0,";":0,"\t":0};
+ var quoted=false;
+ for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){if(quoted&&line[i+1]==='"')i++;else quoted=!quoted;}else if(!quoted&&Object.prototype.hasOwnProperty.call(counts,c))counts[c]++;}
+ return Object.keys(counts).reduce(function(best,k){return counts[k]>counts[best]?k:best;},",");
+}
+function parseCSV(text,sep){
+ var rows=[],row=[],field="",quoted=false,inside=false;
+ text=text.replace(/^\uFEFF/,"");
+ for(var i=0;i<text.length;i++){
+ var c=text[i];
+ if(quoted){if(c==='"'){if(text[i+1]==='"'){field+='"';i++;}else quoted=false;}else field+=c;continue;}
+ if(c==='"' && field===""){quoted=true;inside=true;continue;}
+ if(c===sep){row.push(field);field="";inside=true;continue;}
+ if(c==="\n"||c==="\r"){if(c==="\r"&&text[i+1]==="\n")i++;row.push(field);rows.push(row);row=[];field="";inside=false;continue;}
+ field+=c;inside=true;
+ }
+ if(quoted)throw new Error("CSV com aspas não fechadas.");
+ if(inside||row.length||field.length){row.push(field);rows.push(row);}
+ return rows;
+}
+function tidy(rows){
+ var trimmed=document.getElementById("trim").checked,dropEmpty=document.getElementById("empty").checked,dedup=document.getElementById("duplicates").checked,head=document.getElementById("header").checked;
+ var seen=new Set(),result=[];
+ rows.forEach(function(row,index){
+ var next=row.map(function(v){return trimmed?v.trim().replace(/[ \t]+/g," "):v;});
+ if(dropEmpty&&next.every(function(v){return v==="";}))return;
+ if(index!==0||!head){var key=JSON.stringify(next);if(dedup&&seen.has(key))return;seen.add(key);}
+ result.push(next);
+ });return result;
+}
+function render(rows,original){
+ document.getElementById("original").textContent=original;
+ document.getElementById("result").textContent=rows.length;
+ document.getElementById("removed").textContent=original-rows.length;
+ var head=document.querySelector("#preview thead"),body=document.querySelector("#preview tbody");
+ head.replaceChildren();body.replaceChildren();
+ var width=Math.max(1,...rows.slice(0,8).map(function(r){return r.length;}));
+ if(!rows.length){var tr=document.createElement("tr"),td=document.createElement("td");td.textContent="Nenhuma linha após a limpeza.";tr.append(td);body.append(tr);return;}
+ var tr=document.createElement("tr");
+ for(var i=0;i<width;i++){var th=document.createElement("th");th.textContent="Coluna "+(i+1);tr.append(th);}head.append(tr);
+ rows.slice(0,8).forEach(function(r){var tr=document.createElement("tr");for(var i=0;i<width;i++){var td=document.createElement("td");td.textContent=r[i]||"";tr.append(td);}body.append(tr);});
+}
+function safeCell(value){
+ var s=String(value);
+ // Spreadsheet formula injection mitigation is best-effort; user supplied cells may still need inspection.
+ if(/^[\s]*[=+\-@]/.test(s)||/^[\t\r]/.test(s))s="'"+s;
+ return '"'+s.replace(/"/g,'""')+'"';
+}
+function encode(rows,sep){return "\uFEFF"+rows.map(function(r){return r.map(safeCell).join(sep);}).join("\r\n")+"\r\n";}
+function clearState(){outRows=[];download.disabled=true;document.getElementById("original").textContent=0;document.getElementById("result").textContent=0;document.getElementById("removed").textContent=0;}
+file.addEventListener("change",function(){
+ clearState();rawText="";var f=file.files&&file.files[0];clean.disabled=true;
+ if(!f){say("Escolha um arquivo.");return;}
+ if(f.size>2*1024*1024){say("Limite de 2 MB excedido.",true);return;}
+ if(!/\.(csv|txt)$/i.test(f.name)){say("Use arquivos .csv ou .txt.",true);return;}
+ name=f.name.replace(/\.(csv|txt)$/i,"");if(name.length>100)name=name.slice(0,100);
+ var reader=new FileReader();reader.onload=function(){rawText=String(reader.result||"");if(!rawText.trim()){say("Arquivo vazio.",true);return;}delimiter=guess(rawText);clean.disabled=false;say("Arquivo carregado localmente. Clique em Limpar arquivo.");};reader.onerror=function(){say("Não foi possível ler o arquivo.",true);};reader.readAsText(f,"UTF-8");
+});
+document.getElementById("example").addEventListener("click",function(){
+ clearState();rawText="Nome,Valor\nAna, 10\nAna, 10\nBia, 20\n\nCarlos, 30\n";name="exemplo";delimiter=",";clean.disabled=false;say("Exemplo pronto. Clique em Limpar arquivo.");
+});
+clean.addEventListener("click",function(){
+ if(!rawText)return;
+ try{delimiter=guess(rawText);var rows=parseCSV(rawText,delimiter);
+ if(rows.length>20000)throw new Error("Arquivo com mais de 20 mil linhas. Divida em partes menores.");
+ outRows=tidy(rows);render(outRows,rows.length);download.disabled=!outRows.length;say("Limpeza concluída no navegador. Confira e baixe.");}
+ catch(e){clearState();say(e.message||"Erro ao ler CSV.",true);}
+});
+download.addEventListener("click",function(){
+ if(!outRows.length)return;
+ var blob=new Blob([encode(outRows,delimiter)],{type:"text/csv;charset=utf-8"});
+ var url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download=(name||"dados").replace(/[\\/:*?"<>|]/g,"_")+"-limpo.csv";document.body.append(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1500);
+});
+})();
+</script>
+</body></html>
