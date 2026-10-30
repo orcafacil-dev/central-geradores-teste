@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="OrçaFácil Automações: small remote web fixes, spreadsheet cleanup and quote tools. Clear scope, written quotes, practical deliverables.">
+<meta name="theme-color" content="#101b35">
+<title>OrçaFácil | Small digital tasks, clearly delivered</title>
+<style>
+:root{color-scheme:light;--ink:#18223a;--muted:#59657a;--navy:#101b35;--blue:#175ddc;--pale:#eaf1fe;--line:#dce5f0;--white:#fff;--bg:#f7f9fd;--green:#147f57}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.57 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}a{color:var(--blue)}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #f6ac47;outline-offset:3px}
+.container{width:min(1080px,calc(100% - 40px));margin:auto}
+header{background:var(--navy);color:#fff}.nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:19px 0}.brand{display:flex;align-items:center;gap:11px;font-size:1.13rem;font-weight:800;letter-spacing:-.025em}.brandmark{display:grid;place-items:center;background:#74aaff;color:#122552;border-radius:11px;width:37px;height:37px;font-weight:900}.navlinks{display:flex;align-items:center;gap:18px}.navlinks a{color:#f5f7ff;text-decoration:none;font-size:.93rem}.lang{background:transparent;color:white;border:1px solid #98aac9;border-radius:9px;padding:8px 10px;cursor:pointer}
+.hero{padding:72px 0 75px;background:linear-gradient(120deg,#101b35 0%,#203d73 100%);color:white}.eyebrow{text-transform:uppercase;letter-spacing:.16em;color:#b8cef6;font-size:.76rem;font-weight:800}.hero h1{max-width:800px;margin:16px 0;font-size:clamp(2.3rem,5vw,4.4rem);line-height:1.1;letter-spacing:-.055em}.hero p{max-width:650px;color:#dce7fa;font-size:1.14rem}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:12px 18px;border-radius:11px;text-decoration:none;border:1px solid transparent;font:inherit;font-weight:750;cursor:pointer}.btn-primary{background:#89b9ff;color:#10234f}.btn-secondary{border-color:#a0b3d0;color:white;background:transparent}.btn-dark{background:var(--blue);color:white}.trust{display:flex;gap:15px;flex-wrap:wrap;margin-top:31px;font-size:.9rem;color:#d5e0f7}.trust span{padding:7px 10px;background:#ffffff14;border:1px solid #ffffff25;border-radius:8px}
+section{padding:57px 0}h2{font-size:clamp(1.65rem,3vw,2.2rem);line-height:1.17;letter-spacing:-.035em;margin:0 0 12px}h3{margin:0 0 9px;font-size:1.22rem}p{margin:0 0 13px}.lead{color:var(--muted);max-width:720px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:17px;margin-top:26px}.card{background:white;border:1px solid var(--line);border-radius:17px;padding:25px;box-shadow:0 7px 28px #16264707}.card .icon{background:var(--pale);display:grid;place-items:center;border-radius:12px;font-size:1.35rem;width:48px;height:48px;margin-bottom:18px}.card p{color:var(--muted);font-size:.96rem;min-height:112px}.card strong{color:var(--green);font-size:.9rem}.card .small{display:block;margin-top:9px;font-size:.81rem;color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:28px 0}.step{border-left:3px solid var(--blue);padding:2px 16px}.step b{display:block;margin-bottom:5px}.step p{font-size:.91rem;color:var(--muted)}
+.callout{background:#eaf1fe;border:1px solid #cddffc;border-radius:14px;padding:19px 22px;color:#314668}
+#request{background:#eef3fa}.formwrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:30px;align-items:start}form{padding:24px;background:white;border:1px solid var(--line);border-radius:18px;box-shadow:0 15px 45px #172d4e0b}.field{margin-bottom:16px}label{display:block;font-weight:700;font-size:.91rem;margin-bottom:6px}input,select,textarea{width:100%;padding:12px 13px;border:1px solid #bfcada;border-radius:9px;background:white;color:var(--ink);font:inherit}textarea{min-height:135px;resize:vertical}small,.note{color:var(--muted);font-size:.85rem}.check{display:flex;align-items:start;gap:10px;font-weight:500}.check input{width:auto;margin-top:6px}.note{margin:13px 0}.fallback{display:none;margin-top:14px;padding:14px;background:var(--pale);border-radius:10px;overflow-wrap:anywhere}.fallback a{display:inline-block;margin-top:7px}footer{background:var(--navy);color:#c8d5ee;padding:28px 0;font-size:.86rem}footer a{color:white}
+@media(max-width:800px){.cards,.steps{grid-template-columns:1fr}.card p{min-height:auto}.formwrap{grid-template-columns:1fr}.hero{padding:48px 0}.navlinks a{display:none}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header><div class="container nav">
+ <div class="brand"><div class="brandmark" aria-hidden="true">O</div>OrçaFácil <span style="font-weight:400;font-size:.8rem;color:#bfd0eb">Automações</span></div>
+ <nav class="navlinks" aria-label="Main"><a href="#services" data-en="Services" data-pt="Serviços">Services</a><a href="#process" data-en="How it works" data-pt="Como funciona">How it works</a><button type="button" id="language" class="lang" aria-label="Switch language">Português</button></nav>
+</div></header>
+<main>
+<section class="hero"><div class="container">
+<div class="eyebrow" data-en="Remote digital help · Small, defined projects" data-pt="Serviços digitais remotos · Projetos pequenos e definidos">Remote digital help · Small, defined projects</div>
+<h1 data-en="Your small digital task, handled with care." data-pt="Seu pequeno trabalho digital, feito com atenção.">Your small digital task, handled with care.</h1>
+<p data-en="Website fixes, clean spreadsheets, and practical quote tools. Clear scope, transparent communication, and deliverables you can review." data-pt="Correções em sites, organização de planilhas e ferramentas práticas de orçamento. Escopo claro, comunicação transparente e entregas que você pode conferir.">Website fixes, clean spreadsheets, and practical quote tools. Clear scope, transparent communication, and deliverables you can review.</p>
+<div class="actions"><a href="#request" class="btn btn-primary" data-en="Request a quote" data-pt="Pedir orçamento">Request a quote</a><a href="https://github.com/orcafacil-dev/central-geradores-teste/tree/main/portfolio" class="btn btn-secondary" data-en="See original demos" data-pt="Ver demonstrações próprias">See original demos</a></div>
+<div class="trust"><span data-en="Independent, Brazil-based" data-pt="Operação independente no Brasil">Independent, Brazil-based</span><span data-en="AI-assisted, reviewed" data-pt="IA como apoio, com revisão">AI-assisted, reviewed</span><span data-en="No obligation to request" data-pt="Consulta sem compromisso">No obligation to request</span></div>
+</div></section>
+<section id="services"><div class="container">
+<h2 data-en="What we can deliver" data-pt="O que podemos entregar">What we can deliver</h2>
+<p class="lead" data-en="Start small. We review your requirements before agreeing on price, timeframe, or technical feasibility." data-pt="Comece pequeno. Avaliamos os requisitos antes de confirmar preço, prazo ou viabilidade técnica.">Start small. We review your requirements before agreeing on price, timeframe, or technical feasibility.</p>
+<div class="cards">
+<article class="card"><div class="icon" aria-hidden="true">⌘</div><h3 data-en="Website micro-fixes" data-pt="Pequenos ajustes em sites">Website micro-fixes</h3><p data-en="Responsive HTML/CSS adjustments, simple JavaScript behavior, text updates and layout corrections. Existing code or page required." data-pt="Ajustes responsivos em HTML/CSS, comportamentos simples em JavaScript, atualização de textos e correções visuais. Requer página ou código existente.">Responsive HTML/CSS adjustments, simple JavaScript behavior, text updates and layout corrections. Existing code or page required.</p><strong data-en="Short, scoped assignments" data-pt="Trabalhos curtos e delimitados">Short, scoped assignments</strong></article>
+<article class="card"><div class="icon" aria-hidden="true">▦</div><h3 data-en="Spreadsheets & CSV cleanup" data-pt="Planilhas e organização de CSV">Spreadsheets & CSV cleanup</h3><p data-en="Organize columns, standardize data formats, remove duplicates and build simple tables or formulas from non-sensitive files." data-pt="Organização de colunas, padronização de formatos, remoção de duplicatas e criação de tabelas ou fórmulas simples com arquivos não sensíveis.">Organize columns, standardize data formats, remove duplicates and build simple tables or formulas from non-sensitive files.</p><strong data-en="Source files reviewed first" data-pt="Arquivos avaliados antes">Source files reviewed first</strong></article>
+<article class="card"><div class="icon" aria-hidden="true">▤</div><h3 data-en="Custom quote tool" data-pt="Gerador de orçamentos personalizado">Custom quote tool</h3><p data-en="Adapt a lightweight quote calculator with your services, logo and browser print/PDF output. We have an original demonstration available." data-pt="Personalização de calculadora simples de orçamento com serviços, logotipo e impressão/PDF pelo navegador. Temos uma demonstração própria disponível.">Adapt a lightweight quote calculator with your services, logo and browser print/PDF output. We have an original demonstration available.</p><strong><a href="https://github.com/orcafacil-dev/central-geradores-teste/blob/main/portfolio/orcamento-express-demo.html" data-en="View example code" data-pt="Ver código de exemplo">View example code</a></strong></article>
+</div></div></section>
+<section id="process"><div class="container">
+<h2 data-en="A straightforward process" data-pt="Um processo direto">A straightforward process</h2>
+<div class="steps">
+<div class="step"><b data-en="1. Tell us the task" data-pt="1. Descreva a tarefa">1. Tell us the task</b><p data-en="Describe what you need and share only non-sensitive details initially." data-pt="Descreva sua necessidade e compartilhe apenas detalhes não sensíveis inicialmente.">Describe what you need and share only non-sensitive details initially.</p></div>
+<div class="step"><b data-en="2. We check scope" data-pt="2. Avaliamos o escopo">2. We check scope</b><p data-en="We confirm feasibility, price, deliverables and schedule in writing before starting." data-pt="Confirmamos viabilidade, preço, entregáveis e prazo por escrito antes de iniciar.">We confirm feasibility, price, deliverables and schedule in writing before starting.</p></div>
+<div class="step"><b data-en="3. Delivery & review" data-pt="3. Entrega e revisão">3. Delivery & review</b><p data-en="We prepare and test the work, then share the agreed files for your review." data-pt="Preparamos e testamos o trabalho e enviamos os arquivos combinados para sua revisão.">We prepare and test the work, then share the agreed files for sua revisão.</p></div>
+</div>
+<div class="callout" data-en="We are a new, independent operation. Portfolio examples are original demonstrations, not past paying-client projects. No payment is collected by this page." data-pt="Somos uma operação independente em fase inicial. Os exemplos de portfólio são demonstrações próprias, não trabalhos de clientes pagantes. Esta página não recebe pagamentos.">We are a new, independent operation. Portfolio examples are original demonstrations, not past paying-client projects. No payment is collected by this page.</div>
+</div></section>
+<section id="request"><div class="container formwrap">
+<div><h2 data-en="Tell us what you need" data-pt="Conte o que você precisa">Tell us what you need</h2>
+<p class="lead" data-en="Fill out the details. The button will open an email draft in your email app; please review and send it to complete your inquiry." data-pt="Preencha os detalhes. O botão abrirá um rascunho no seu aplicativo de e-mail; revise e envie para concluir a solicitação.">Fill out the details. The button will open an email draft in your email app; please review and send it to complete your inquiry.</p>
+<p class="lead" data-en="No account, deposit, or sensitive information is needed to ask for a quote." data-pt="Não é necessário criar conta, pagar sinal ou enviar dados sensíveis para pedir orçamento.">No account, deposit, or sensitive information is needed to ask for a quote.</p>
+<p><a href="mailto:orcafacil.automacoes@gmail.com?subject=%5BORCAFACIL-SERVICOS%5D%20New%20inquiry">orcafacil.automacoes@gmail.com</a></p>
+</div>
+<form id="inquiry" novalidate>
+<div class="field"><label for="client" data-en="Your name or organization" data-pt="Seu nome ou organização">Your name or organization</label><input id="client" name="client" required maxlength="90" autocomplete="organization" placeholder="e.g. Small Business"></div>
+<div class="field"><label for="service" data-en="What do you need?" data-pt="Qual serviço você precisa?">What do you need?</label><select id="service" name="service" required><option value="" data-en="Choose a service" data-pt="Escolha um serviço">Choose a service</option><option value="Website micro-fix" data-en="Website micro-fix" data-pt="Pequeno ajuste em site">Website micro-fix</option><option value="Spreadsheet or CSV" data-en="Spreadsheet or CSV" data-pt="Planilha ou CSV">Spreadsheet or CSV</option><option value="Custom quote tool" data-en="Custom quote tool" data-pt="Gerador de orçamentos">Custom quote tool</option></select></div>
+<div class="field"><label for="brief" data-en="Project description" data-pt="Descrição do projeto">Project description</label><textarea id="brief" name="brief" required minlength="15" maxlength="2500" placeholder="What needs to change? What output do you expect?"></textarea><small data-en="No passwords, payment details or sensitive personal data." data-pt="Não envie senhas, dados de pagamento ou informações pessoais sensíveis.">No passwords, payment details or sensitive personal data.</small></div>
+<div class="field"><label for="deadline" data-en="Preferred deadline (optional)" data-pt="Prazo desejado (opcional)">Preferred deadline (optional)</label><input id="deadline" name="deadline" maxlength="80" placeholder="e.g. next week"></div>
+<label class="check"><input type="checkbox" id="consent" required><span data-en="I understand my email app will open; no request is sent until I send that email." data-pt="Entendo que o aplicativo de e-mail será aberto; nenhum pedido será enviado até eu enviar o e-mail.">I understand my email app will open; no request is sent until I send that email.</span></label>
+<p class="note" data-en="We use the information only to respond to your request and evaluate the project. Do not send confidential files before agreeing on a secure channel." data-pt="Usamos os dados apenas para responder à solicitação e avaliar o projeto. Não envie arquivos confidenciais antes de combinar um canal seguro.">We use the information only to respond to your request and evaluate the project. Do not send confidential files before agreeing on a secure channel.</p>
+<button class="btn btn-dark" type="submit" id="send" data-en="Prepare my email request" data-pt="Preparar meu pedido por e-mail">Prepare my email request</button>
+<div class="fallback" id="fallback" aria-live="polite"><span id="confirmation">Your email draft should open. Please send it to submit the request.</span> <br><a id="gmail" target="_blank" rel="noopener noreferrer" href="#" data-en="Use Gmail instead" data-pt="Usar Gmail">Use Gmail instead</a></div>
+</form></div></section>
+</main>
+<footer><div class="container">© OrçaFácil Automações · <span data-en="Independent digital services, Esperança/PB, Brazil. No automatic purchase or payment on this page." data-pt="Serviços digitais independentes, Esperança/PB, Brasil. Sem compra ou pagamento automático nesta página.">Independent digital services, Esperança/PB, Brazil. No automatic purchase or payment on this page.</span></div></footer>
+<script>
+(function(){
+"use strict";
+var lang="en",langButton=document.getElementById("language"),form=document.getElementById("inquiry");
+function setLanguage(v){
+ lang=v;document.documentElement.lang=v;
+ document.querySelectorAll("[data-en][data-pt]").forEach(function(node){node.textContent=node.getAttribute("data-"+v);});
+ langButton.textContent=v==="en"?"Português":"English";
+ document.getElementById("brief").placeholder=v==="en"?"What needs to change? What output do you expect?":"O que precisa mudar? Qual é o resultado esperado?";
+ document.getElementById("deadline").placeholder=v==="en"?"e.g. next week":"Ex.: próxima semana";
+}
+langButton.addEventListener("click",function(){setLanguage(lang==="en"?"pt":"en");});
+var urlParams=new URLSearchParams(location.search);
+if(urlParams.get("lang")==="pt"||(!urlParams.get("lang")&&navigator.language.toLowerCase().startsWith("pt")))setLanguage("pt");
+form.addEventListener("submit",function(event){
+ event.preventDefault();
+ if(!form.reportValidity())return;
+ var name=document.getElementById("client").value.trim();
+ var service=document.getElementById("service").value;
+ var brief=document.getElementById("brief").value.trim();
+ var deadline=document.getElementById("deadline").value.trim();
+ if(!name||!service||brief.length<15){document.getElementById("brief").focus();return;}
+ var subject="[ORCAFACIL-SERVICOS] "+service+" - "+name;
+ var body=["Hello OrçaFácil,","", "Name / organization: "+name,"Service: "+service,"Project description: "+brief,"Preferred deadline: "+(deadline||"To be discussed"),"","Please review this request and reply with a written scope and quote.","","Origin: OrçaFácil service inquiry page."].join("\n");
+ var mailto="mailto:orcafacil.automacoes@gmail.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+ var gmail="https://mail.google.com/mail/?view=cm&fs=1&to="+encodeURIComponent("orcafacil.automacoes@gmail.com")+"&su="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+ document.getElementById("gmail").href=gmail;
+ document.getElementById("confirmation").textContent=lang==="en"?"Check your email app and SEND the draft to complete your request. If nothing opened, use Gmail below.":"Confira seu aplicativo de e-mail e ENVIE o rascunho para concluir. Se nada abriu, use o Gmail abaixo.";
+ document.getElementById("fallback").style.display="block";
+ location.href=mailto;
+});
+})();
+</script>
+</body></html>
